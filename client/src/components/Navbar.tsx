@@ -13,7 +13,7 @@ const Navbar = () => {
       <div
         className={`${
           menuState
-            ? 'flex absolute z-[100] top-[4rem] left-0 bg-[#0E131E] w-full text-center py-[1rem]'
+            ? 'flex absolute z-[100] top-[4rem] left-0 bg-[#0E131E] w-full text-center py-[1rem] border-b-2 border-white'
             : 'hidden'
         } md:flex flex-col md:flex-row text-[#A2A4A8] gap-[2rem]`}
       >
