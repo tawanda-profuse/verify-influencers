@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@layer utilities{
+    html {
+        @apply scroll-smooth;
+    }
+    body {
+        @apply bg-[#0E131E];
+    }
+    .dark-green-text{
+        @apply text-[#3E8563];
+    }
+    .light-green-text{
+        @apply text-[#74d3a5];
+    }
+    .light-gray-text{
+        @apply text-[#d7d7d7];
+    }
+    .gray-text{
+        @apply text-[#878b92];
+    }
+    .green-background{
+        @apply bg-[#3E8563];
+    }
+    .opaque-green-bg{
+        @apply bg-[#17282B];
+    }
+}
