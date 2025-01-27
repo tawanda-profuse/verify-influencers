@@ -1,6 +1,38 @@
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+interface Influencer {
+  rank: number
+  name: string
+  profilePic: string
+  category: string
+  trustScore: number
+  trend: number
+  followers: number
+  verifiedClaims: number
+}
+
 const LeaderBoard = () => {
+  const apiUrl: string = window.location.origin.includes('localhost')
+    ? 'http://localhost:5000'
+    : ''
+  const [influencers, setInfluencers] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/leaderboard`)
+        setInfluencers(response.data.influencers)
+      } catch (error) {
+        console.error(error)
+        setInfluencers([]);
+      }
+    }
+
+    fetchData()
+  }, [apiUrl])
+
   return (
     <main className='p-[4rem]'>
       <h1 className='text-white text-3xl font-bold'>
@@ -56,39 +88,54 @@ const LeaderBoard = () => {
           <i className='fas fa-arrow-down-long'></i> Highest First
         </button>
       </div>
-      <div className='overflow-x-auto my-[2rem]'>
-        <div className='border-1 border-[#aaa] rounded-lg'>
-          <table className='bg-[#19212E] w-full rounded-lg'>
-            <thead className='gray-text border-b'>
-              <th className='p-[0.5rem]'>RANK</th>
-              <th className='p-[0.5rem]'>INFLUENCER</th>
-              <th className='p-[0.5rem]'>CATEGORY</th>
-              <th className='p-[0.5rem]'>TRUST SCORE</th>
-              <th className='p-[0.5rem]'>TREND</th>
-              <th className='p-[0.5rem]'>FOLLOWERS</th>
-              <th className='p-[0.5rem]'>VERIFIED CLAIMS</th>
-            </thead>
-            <tbody className='text-white'>
-              <tr>
-                <td className='text-center p-[0.5rem]'>#1</td>
-                <td className='text-center p-[0.5rem] flex items-center justify-center gap-[1rem]'>
-                  <img className='bg-[grey] rounded-full w-[2rem] h-[2rem]' />{' '}
-                  <Link to='/influencer/123' className='hover:underline'>
-                    Dr. Peter Attia
-                  </Link>
-                </td>
-                <td className='text-center p-[0.5rem]'>Medicine</td>
-                <td className='text-center p-[0.5rem]'>94%</td>
-                <td className='text-center p-[0.5rem]'>
-                  <i className='fas fa-arrow-trend-up'></i>
-                </td>
-                <td className='text-center p-[0.5rem]'>1.2M+</td>
-                <td className='text-center p-[0.5rem]'>203</td>
-              </tr>
-            </tbody>
-          </table>
+      {influencers.length > 0 ? (
+        <div className='overflow-x-auto my-[2rem]'>
+          <div className='border-1 border-[#aaa] rounded-lg'>
+            <table className='bg-[#19212E] w-full rounded-lg'>
+              <thead className='gray-text border-b'>
+                <th className='p-[0.5rem]'>RANK</th>
+                <th className='p-[0.5rem]'>INFLUENCER</th>
+                <th className='p-[0.5rem]'>CATEGORY</th>
+                <th className='p-[0.5rem]'>TRUST SCORE</th>
+                <th className='p-[0.5rem]'>TREND</th>
+                <th className='p-[0.5rem]'>FOLLOWERS</th>
+                <th className='p-[0.5rem]'>VERIFIED CLAIMS</th>
+              </thead>
+              <tbody className='text-white'>
+                {influencers.map((person: Influencer, index: number) => (
+                  <tr key={index}>
+                    <td className='text-center p-[0.5rem]'>{person.rank}</td>
+                    <td className='text-center p-[0.5rem] flex items-center justify-center gap-[1rem]'>
+                      <img className='bg-[grey] rounded-full w-[2rem] h-[2rem]' />{' '}
+                      <Link to='/influencer/123' className='hover:underline'>
+                        {person.name}
+                      </Link>
+                    </td>
+                    <td className='text-center p-[0.5rem]'>
+                      {person.category}
+                    </td>
+                    <td className='text-center p-[0.5rem]'>
+                      {person.trustScore}
+                    </td>
+                    <td className='text-center p-[0.5rem]'>
+                      <i className='fas fa-arrow-trend-up'></i>
+                      {person.trend}
+                    </td>
+                    <td className='text-center p-[0.5rem]'>
+                      {person.followers}
+                    </td>
+                    <td className='text-center p-[0.5rem]'>
+                      {person.verifiedClaims}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <p className='text-center text-white my-[2rem]'>No data available</p>
+      )}
     </main>
   )
 }

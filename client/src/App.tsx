@@ -1,22 +1,25 @@
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Research from './pages/Research'
-import LeaderBoard from './pages/LeaderBoard'
-import InfluencerDetails from './pages/InfluencerDetails'
+const LeaderBoard = lazy(() => import('./pages/LeaderBoard')); 
+const InfluencerDetails = lazy (() => import('./pages/InfluencerDetails'));
 import NotFound from './pages/NotFound'
+import Pending from './components/Pending'
 
 function App () {
   return (
     <>
-      <Navbar />
-      <Routes>
-        <Route path='/' element={null}></Route>
-        <Route path='/research' element={<Research />}></Route>
-        <Route path='/leaderboard' element={<LeaderBoard />}></Route>
-        <Route path='/influencer/:id' element={<InfluencerDetails />}></Route>
-        <Route path='*' element={<NotFound />}></Route>
-      </Routes>
+      <Suspense fallback={<Pending />}>
+        <Navbar />
+        <Routes>
+          <Route path='/' element={<Research />}></Route>
+          <Route path='/leaderboard' element={<LeaderBoard />}></Route>
+          <Route path='/influencer/:id' element={<InfluencerDetails />}></Route>
+          <Route path='*' element={<NotFound />}></Route>
+        </Routes>
+      </Suspense>
     </>
   )
 }

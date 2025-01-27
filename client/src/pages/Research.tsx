@@ -1,10 +1,82 @@
+import axios from 'axios'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import Pending from '../components/Pending'
 
 const Research = () => {
+  const apiUrl = window.location.origin.includes('localhost')
+    ? 'http://localhost:5000'
+    : ''
+  const [influencerName, setInfluencerName] = useState('')
+  const [researchType, setResearchType] = useState('specific')
+  const [numberOfClaims, setNumberOfClaims] = useState(50)
+  const [journals, setJournals] = useState<string[]>([])
+  const [products, setProducts] = useState(10)
+  const [revenueAnalysis, setRevenueAnalysis] = useState(false)
+  const [verifyWithScientificJournals, setVerifyWithScientificJournals] =
+    useState(false)
+  const [dateRange, setDateRange] = useState('All Time')
+  const [notes, setNotes] = useState('')
+  const [newJournal, setNewJournal] = useState(false)
+  const [newJournalValue, setNewJournalValue] = useState('')
+  const [isPending, setIsPending] = useState<boolean>(false);
+
+  const handleSubmit = async () => {
+    setIsPending(true);
+    try {
+      await axios.post(`${apiUrl}/research`, {
+        influencerName,
+        researchType,
+        dateRange,
+        numberOfClaims,
+        journals,
+        products,
+        revenueAnalysis,
+        verifyWithScientificJournals,
+        notes,
+      })
+    } catch (error) {
+      console.error('Error: ', error)
+      alert('Error while generating research')
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  const [scientificJournals, setScientificJournals] = useState([
+    'PubMed Central',
+    'Nature',
+    'Science',
+    'Cell',
+    'The Lancet',
+    'New England Journal of Medicine',
+    'JAMA Network'
+  ])
+
+  const updateJournalList = (journal: string) => {
+    if (journals.includes(journal)) {
+      setJournals(prev => prev.filter(item => item !== journal))
+    } else {
+      setJournals(prev => [...prev, journal])
+    }
+  }
+
+  const activateButton = (): boolean => {
+    if (researchType === 'specific' && !influencerName) {
+      return false
+    }
+    if (!researchType || !numberOfClaims || journals.length <= 0) {
+      return false
+    }
+    return true
+  }
+
   return (
+    <>
+    {isPending && <Pending/>}
     <main className='p-[4rem]'>
       <div className='flex gap-[1rem] items-center mb-[2rem]'>
-        <Link to='/' className='dark-green-text font-medium'>
+        <Link to='/leaderboard' className='dark-green-text font-medium'>
           <i className='fas fa-arrow-left'></i> Back to Dashboard
         </Link>
         <h1 className='text-white text-3xl font-bold'>Research Tasks</h1>
@@ -14,11 +86,25 @@ const Research = () => {
           <i className='fas fa-gear dark-green-text'></i> Research Configuration
         </h2>
         <div className='flex flex-col md:flex-row my-[2rem] gap-[1rem]'>
-          <button className='w-full md:w-2/4 grid p-[1rem] gray-text rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg'>
+          <button
+            className={`w-full md:w-2/4 grid p-[1rem] gray-text rounded-lg hover:underline decoration-[white] cursor-pointer border ${
+              researchType === 'specific'
+                ? 'border-[#3E8563] opaque-green-bg'
+                : 'border-white'
+            }`}
+            onClick={() => setResearchType('specific')}
+          >
             <span className='text-white'>Specific Influencer</span>
             Research a known influencer by name
           </button>
-          <button className='w-full md:w-2/4 grid p-[1rem] gray-text rounded-lg hover:underline decoration-[white] cursor-pointer border border-white'>
+          <button
+            className={`w-full md:w-2/4 grid p-[1rem] gray-text rounded-lg hover:underline decoration-[white] cursor-pointer border ${
+              researchType === 'discover'
+                ? 'border-[#3E8563] opaque-green-bg'
+                : 'border-white'
+            }`}
+            onClick={() => setResearchType('discover')}
+          >
             <span className='text-white'>Discover New</span>
             Find and analyze new health influencers
           </button>
@@ -27,41 +113,49 @@ const Research = () => {
           <div className='flex flex-col w-full md:w-2/4'>
             <label className='light-gray-text font-medium'>Time Range</label>
             <div className='grid grid-cols-2 my-[0.5rem] gap-[0.5rem]'>
-              <button className='text-center p-[0.5rem] cursor-pointer rounded-md light-gray-text border border-[#929499]'>
-                Last Week
-              </button>
-              <button className='text-center p-[0.5rem] cursor-pointer rounded-md light-green-text border border-[#3E8563] opaque-green-bg'>
-                Last Month
-              </button>
+              {['All Time', 'Last Week', 'Last Month', 'Last Year'].map(
+                (item, index) => (
+                  <button
+                    className={`text-center p-[0.5rem] cursor-pointer rounded-md border ${
+                      dateRange === item
+                        ? 'light-green-text border-[#3E8563] opaque-green-bg'
+                        : 'light-gray-text border-[#929499]'
+                    }`}
+                    key={index}
+                    onClick={() => setDateRange(item)}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
             </div>
-            <div className='grid grid-cols-2 my-[0.5rem] gap-[0.5rem]'>
-              <button className='text-center p-[0.5rem] cursor-pointer rounded-md light-gray-text border border-[#929499]'>
-                Last Year
-              </button>
-              <button className='text-center p-[0.5rem] cursor-pointer rounded-md light-gray-text border border-[#929499]'>
-                All Time
-              </button>
-            </div>
-            <label className='light-gray-text font-medium my-[1rem]'>
-              Influencer Name
-            </label>
-            <span className='relative'>
-              <i className='fas fa-search absolute light-gray-text top-2/4 -translate-y-2/4 left-4'></i>
-              <input
-                type='text'
-                className='w-full px-[3rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E]'
-                placeholder='Enter influencer name'
-              />
-            </span>
+            {researchType === 'specific' && (
+              <>
+                {' '}
+                <label className='light-gray-text font-medium my-[1rem]'>
+                  Influencer Name
+                </label>
+                <span className='relative'>
+                  <i className='fas fa-search absolute light-gray-text top-2/4 -translate-y-2/4 left-4'></i>
+                  <input
+                    type='text'
+                    className='w-full px-[3rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E]'
+                    placeholder='Enter influencer name'
+                    onChange={e => setInfluencerName(e.target.value)}
+                  />
+                </span>
+              </>
+            )}
             <span>
               <label className='light-gray-text font-medium my-[1rem]'>
                 Claims to Analyze Per Influencer
               </label>
               <input
                 type='number'
-                value={50}
+                value={numberOfClaims}
                 className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] mt-[1rem] bg-[#0E131E]'
                 placeholder='Enter influencer name'
+                onChange={e => setNumberOfClaims(Number(e.target.value))}
               />
               <p className='text-sm text-[#c0c0c0]'>
                 Recommended: 50-100 claims for comprehensive analysis
@@ -77,6 +171,7 @@ const Research = () => {
                 type='number'
                 className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] mt-[1rem] bg-[#0E131E]'
                 value={10}
+                onChange={e => setProducts(Number(e.target.value))}
               />
               <p className='text-sm text-[#c0c0c0]'>
                 Set to 0 to skip product research
@@ -84,8 +179,10 @@ const Research = () => {
             </span>
             <span className='flex mt-[1rem] items-start justify-between'>
               <span className='flex flex-col gap-[1rem] text-[#c3c3c3] font-medium my-[1rem]'>
-                <p>Include Revenue Analysis</p>
-                <p className='text-sm light-gray-text'>
+                <p className={`${revenueAnalysis && 'light-green-text'}`}>
+                  Include Revenue Analysis
+                </p>
+                <p className='text-sm gray-text'>
                   Analyze monetization methods and estimate earnings
                 </p>
               </span>
@@ -93,14 +190,29 @@ const Research = () => {
                 htmlFor='revenue-analysis'
                 className='mt-[1rem] cursor-pointer'
               >
-                <i className='fas fa-toggle-on text-[#428D67] text-4xl'></i>
-                <input id='revenue-analysis' type='checkbox' className='' />
+                <i
+                  className={`fas ${
+                    revenueAnalysis ? 'fa-toggle-on' : 'fa-toggle-off'
+                  } text-[#428D67] text-4xl`}
+                ></i>
+                <input
+                  id='revenue-analysis'
+                  type='checkbox'
+                  className='hidden'
+                  onChange={() => setRevenueAnalysis(prev => !prev)}
+                />
               </label>
             </span>
             <span className='flex items-start justify-between'>
               <span className='flex flex-col gap-[1rem] text-[#c3c3c3] font-medium my-[1rem]'>
-                <p>Verify with Scientific Journals</p>
-                <p className='text-sm light-gray-text'>
+                <p
+                  className={`${
+                    verifyWithScientificJournals && 'light-green-text'
+                  }`}
+                >
+                  Verify with Scientific Journals
+                </p>
+                <p className='text-sm gray-text'>
                   Cross-reference claims with scientific literature
                 </p>
               </span>
@@ -108,8 +220,21 @@ const Research = () => {
                 className='mt-[1rem] cursor-pointer'
                 htmlFor='cross-reference'
               >
-                <i className='fas fa-toggle-off text-[#428D67] text-4xl'></i>
-                <input id='cross-reference' type='checkbox' className='' />
+                <i
+                  className={`fas ${
+                    verifyWithScientificJournals
+                      ? 'fa-toggle-on'
+                      : 'fa-toggle-off'
+                  } text-[#428D67] text-4xl`}
+                ></i>
+                <input
+                  id='cross-reference'
+                  type='checkbox'
+                  className='hidden'
+                  onChange={() =>
+                    setVerifyWithScientificJournals(prev => !prev)
+                  }
+                />
               </label>
             </span>
           </div>
@@ -120,42 +245,83 @@ const Research = () => {
               Scientific Journals
             </h3>
             <span className='flex gap-[0.5rem]'>
-              <button className='light-green-text cursor-pointer hover:underline'>
+              <button
+                className='light-green-text cursor-pointer hover:underline'
+                onClick={() => setJournals(scientificJournals)}
+              >
                 Select All
               </button>
               <button className='text-[#b3b3b3]'>|</button>
-              <button className='light-green-text cursor-pointer hover:underline'>
+              <button
+                className='light-green-text cursor-pointer hover:underline'
+                onClick={() => setJournals([])}
+              >
                 Deselect All
               </button>
             </span>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-2 w-full my-[1rem] gap-[1rem]'>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              PubMed Central <i className='fas fa-circle dark-green-text'></i>
-            </button>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              Nature <i className='fas fa-circle dark-green-text'></i>
-            </button>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              Science <i className='fas fa-circle dark-green-text'></i>
-            </button>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              Cell <i className='fas fa-circle dark-green-text'></i>
-            </button>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              The Lancet <i className='fas fa-circle dark-green-text'></i>
-            </button>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              New England Journal of Medicine{' '}
-              <i className='fas fa-circle dark-green-text'></i>
-            </button>
-            <button className='w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] opaque-green-bg flex justify-between items-center'>
-              JAMA Network <i className='fas fa-circle dark-green-text'></i>
-            </button>
+            {scientificJournals.length > 0 ? (
+              scientificJournals.map((journal, index) => (
+                <button
+                  className={`w-full p-[1rem] text-white rounded-lg hover:underline decoration-[white] cursor-pointer border border-[#3E8563] ${
+                    journals.includes(journal) && 'opaque-green-bg'
+                  } flex justify-between items-center`}
+                  key={index}
+                  onClick={() => updateJournalList(journal)}
+                >
+                  {journal}{' '}
+                  {journals.includes(journal) && (
+                    <i className='fas fa-circle dark-green-text'></i>
+                  )}
+                </button>
+              ))
+            ) : (
+              <p className='light-green-text font-bold'>
+                No journals available
+              </p>
+            )}
           </div>
-          <button className='light-green-text cursor-pointer hover:underline'>
-            <i className='fas fa-plus'></i> Add New Journal
-          </button>
+          <span className='flex flex-col items-start'>
+            <button
+              className='light-green-text cursor-pointer hover:underline'
+              onClick={() => {
+                if (newJournal) {
+                  setNewJournal(false)
+                } else {
+                  setNewJournal(true)
+                }
+              }}
+            >
+              {newJournal ? (
+                <>
+                  <i className='fas fa-times'></i> Close
+                </>
+              ) : (
+                <>
+                  <i className='fas fa-plus'></i> Add New Journal
+                </>
+              )}
+            </button>
+            {newJournal && (
+              <div className='flex items-center gap-[1rem] w-full'>
+                <input
+                  type='text'
+                  className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] mt-[1rem] bg-[#0E131E]'
+                  placeholder='New journal name'
+                  onChange={e => setNewJournalValue(e.target.value)}
+                />
+                <button
+                  className='green-background px-[0.5rem] py-[0.3rem] rounded-md cursor-pointer'
+                  onClick={() =>
+                    setScientificJournals(prev => [...prev, newJournalValue])
+                  }
+                >
+                  <i className='fas fa-check-circle text-white text-3xl'></i>
+                </button>
+              </div>
+            )}
+          </span>
         </div>
         <div className='flex flex-col'>
           <label className='light-gray-text font-medium my-[1rem]'>
@@ -164,13 +330,23 @@ const Research = () => {
           <textarea
             className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E]'
             placeholder='Add any specific instructions of focus areas...'
+            onChange={e => setNotes(e.target.value)}
           />
-          <button className='mt-[2rem] self-end green-background text-white py-[0.5rem] px-[1rem] rounded-md opacity-50'>
+          <button
+            className={`mt-[2rem] self-end green-background text-white py-[0.5rem] px-[1rem] rounded-md ${
+              activateButton()
+                ? 'opacity-100 cursor-pointer'
+                : 'opacity-50 cursor-not-allowed'
+            }`}
+            onClick={handleSubmit}
+            disabled={activateButton() ? false : true}
+          >
             <i className='fas fa-plus'></i> Start Research
           </button>
         </div>
       </section>
     </main>
+    </>
   )
 }
 
