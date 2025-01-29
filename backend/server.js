@@ -26,90 +26,35 @@ app.get("/", async (req, res) => {
 
 app.get("/test", async (req, res) => {
   try {
-    const tweets = [
-      {
-        text: '@elonmusk You are the "Chosen One". https://t.co/LRRf8g8jQE',
-        public_metrics: [Object],
-        created_at: "2025-01-28T18:23:29.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1884306319202783742",
-      },
-      {
-        text: "@malenchi_alex Install windows!😂",
-        public_metrics: [Object],
-        created_at: "2025-01-28T15:15:02.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1884258894463262795",
-      },
-      {
-        text: "@elonmusk Is this for real?",
-        public_metrics: [Object],
-        created_at: "2025-01-16T14:40:10.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1879901463113286088",
-      },
-      {
-        text:
-          "Thank you @Timi471 for writing this helpful article.\n" +
-          "\n" +
-          "How to Optimize Next.js Web Apps for Better Performance\n" +
-          "\n" +
-          "https://t.co/jpSdaPOYU5",
-        public_metrics: [Object],
-        created_at: "2025-01-12T16:20:22.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1878477129685274898",
-      },
-      {
-        text:
-          "Thank you @ossia for writing this helpful article.\n" +
-          "\n" +
-          "Major freeCodeCamp Curriculum Updates Now Live in 2025\n" +
-          "\n" +
-          "https://t.co/Y9DwGUQYrU",
-        public_metrics: [Object],
-        created_at: "2025-01-05T01:08:27.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1875710921190076535",
-      },
-      {
-        text: '@runaway_vol I find it easier to approach a woman I am not romantically interested in. Who else can relate? I have previously approached girls after getting the "signal" and sometimes this has led to a relationship. The girl should definitely show the first sign.',
-        public_metrics: [Object],
-        created_at: "2025-01-01T14:15:54.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1874459538767917333",
-      },
-      {
-        text: "RT @SeanBellring: @runaway_vol by the 22nd century, a technology will be invented that translates “women shooting their shot” hieroglyphics…",
-        public_metrics: [Object],
-        created_at: "2025-01-01T14:08:48.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1874457752569090551",
-      },
-      {
-        text: '@elonmuskADO Their called "Marasha" in Shona',
-        public_metrics: [Object],
-        created_at: "2025-01-01T13:54:51.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1874454242918105520",
-      },
-      {
-        text: "🔔New Blog Post!🔔 To end the year 2024, I've written an article about ECMAScript 2024,  a standard for scripting languages, including JavaScript. Read more here: https://t.co/XCskkO1mKE",
-        public_metrics: [Object],
-        created_at: "2024-12-28T15:16:06.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1873025137433559279",
-      },
-      {
-        text: "Get so bored and read the full software license agreement.🥱",
-        public_metrics: [Object],
-        created_at: "2024-12-18T16:16:33.000Z",
-        edit_history_tweet_ids: [Array],
-        id: "1869416469592986069",
-      },
-    ];
-    const claims = await generateClaims("@drewcaveman", tweets);
-    console.log(JSON.parse(claims));
+    const products = 10;
+    const revenueAnalysis = true;
+    const user = await getUserDetails("drewcaveman");
+
+    let statsMessage = `Analyze this Twitter user's posts or any other information available online and provide the following information: products ${
+      revenueAnalysis && "and yearly revenue"
+    }.
+    
+    ### Twitter User: ${user?.username} ###
+    ### Person name: ${user?.name} ###
+
+    ${user.tweets && `Claims: ${user.tweets}`}
+
+    Please return your data in JSON format. Do not include any other letters or characters except what I have requested. Only generate a maximum of ${products} products. Ensure that your output is in the following format with these exact property names:
+
+    {
+      "yearlyRevenue": 0,
+      "products": []
+    }
+
+    If you cannot find the information, return 0 for yearlyRevenue and an empty array for products.
+
+    - Products refers to any products that the influencer sells or promotes.
+    - Yearly revenue refers to the estimated yearly revenue of the influencer. If you cannot find the information, return 0.
+    `;
+    const details = await cohereAIDiscover(statsMessage);
+    console.log({
+      details: JSON.parse(details),
+    });
     res.status(200).send({ message: "Success" });
   } catch (error) {
     res.status(500).send({ message: "Error", error });
@@ -132,25 +77,53 @@ app.post("/discover", async (req, res) => {
       notes,
     } = req.body;
 
+    let statsMessage = `Analyze this Twitter user's posts or any other information available online and provide the following information: products ${
+      revenueAnalysis && "and yearly revenue"
+    }.
+    
+    ### Twitter User: ${user?.username} ###
+    ### Person name: ${user?.name} ###
+
+    ${claims && `Claims: ${claims}`}
+
+    Please return your data in JSON format. Do not include any other letters or characters except what I have requested. Only generate a maximum of ${products} products. Ensure that your output is in the following format with these exact property names:
+
+    {
+      "yearlyRevenue": 0,
+      "products": []
+    }
+
+    If you cannot find the information, return 0 for yearlyRevenue and an empty array for products.
+
+    - Products refers to any products that the influencer sells or promotes.
+    - Yearly revenue refers to the estimated yearly revenue of the influencer. If you cannot find the information, return 0.
+    `;
+
     // If the researchType === 'discover'
     if (researchType === "discover") {
       const generatedInfluencers = await cohereGenerateInfluencers();
       const influencers = JSON.parse(generatedInfluencers);
       const twitterRateLimit = 3; // Free tier has a limit of 3 API requests every 15 minutes
       const influencer = new Influencer();
+      const allInfluencers = await Influencer.find()
+        .select("twitterUserName")
+        .map((user) => user.twitterUserName.toLowerCase());
 
       for (let i = 0; i < twitterRateLimit; i++) {
-        const user = await getUserDetails(influencers[i]);
-        let claims = [];
-        if (user.tweets) {
-          claims = await generateClaims(user?.username, user?.tweets);
-        }
-
         // Avoid duplicates in the database
-        const existingInfluencer = await Influencer.findOne({
-          twitterUserName: user?.username,
-        });
-        if (!existingInfluencer) {
+        if (!allInfluencers.includes(influencers[i].toLowerCase())) {
+          const user = await getUserDetails(influencers[i]);
+          let claims = [];
+          if (user.tweets) {
+            claims = await generateClaims(
+              user?.username,
+              user?.tweets,
+              numberOfClaims,
+              verifyWithScientificJournals,
+              journals
+            );
+          }
+
           // Insert the response into the database
           influencer.name = user?.name;
           influencer.twitterUserName = user?.username;
@@ -158,13 +131,15 @@ app.post("/discover", async (req, res) => {
           influencer.bio = user?.bio;
           influencer.profilePhoto = user?.profile_image_url;
           influencer.website = user?.url;
-          // influencer.yearlyRevenue = details?.yearlyRevenue;
-          // influencer.products = details?.products;
-          influencer.claims = claims;
-          // await influencer.save();
+          influencer.claims = claims || [];
+
+          const details = await cohereAIDiscover(statsMessage);
+          influencer.yearlyRevenue = details?.yearlyRevenue;
+          influencer.products = details?.products;
+          await influencer.save();
+          console.log("Health Influencer: ", influencer);
         }
       }
-      console.log("Health Influencer: ", influencer);
     } else {
       // Search twitter for the input influencers name
       const searchMessage = `What is the Twitter user name of ${influencerName}? Only return the user name in your response and do not include anything else. If you cannot find their username, return nothing.`;
@@ -173,7 +148,13 @@ app.post("/discover", async (req, res) => {
         const user = await getUserDetails(twitterUsernameResponse);
         let claims = [];
         if (user.tweets) {
-          claims = await generateClaims(user?.username, user?.tweets);
+          claims = await generateClaims(
+            user?.username,
+            user?.tweets,
+            numberOfClaims,
+            verifyWithScientificJournals,
+            journals
+          );
         }
 
         // Avoid duplicates in the database
@@ -189,17 +170,19 @@ app.post("/discover", async (req, res) => {
           influencer.profilePhoto = user?.profile_image_url;
           influencer.website = user?.url;
           influencer.bio = user?.bio;
-          // influencer.yearlyRevenue = details?.yearlyRevenue;
-          // influencer.products = details?.products;
-          influencer.claims = claims;
-          // await influencer.save();
+          influencer.claims = claims || [];
+
+          const details = await cohereAIDiscover(statsMessage);
+          influencer.yearlyRevenue = details?.yearlyRevenue;
+          influencer.products = details?.products;
+          await influencer.save();
+          console.log("Health Influencer: ", influencer);
         }
-        console.log("Health Influencer: ", influencer);
       } else {
         console.log("Nothing has been found for that search query"),
-        res.status(404).send({
-          message: "Nothing has been found for that search query",
-        });
+          res.status(404).send({
+            message: "Nothing has been found for that search query",
+          });
       }
     }
 
@@ -225,6 +208,25 @@ app.get("/leaderboard", async (req, res) => {
     console.error("Error: ", error);
     res.status(500).send({
       message: "An error has occurred while fetching the leaderboard",
+    });
+  }
+});
+
+app.get("/influencers/:id", async (req, res) => {
+  try {
+    const influencer = await Influencer.findById(req.params.id);
+
+    if (!influencer) {
+      return res.status(404).send({ message: "Influencer not found" });
+    }
+
+    res.status(200).send({
+      influencer,
+    });
+  } catch (error) {
+    console.error("Error: ", error);
+    res.status(500).send({
+      message: "An error has occurred while fetching the influencer",
     });
   }
 });

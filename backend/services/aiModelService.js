@@ -73,11 +73,15 @@ const cohereAIDiscover = async (message) => {
   }
 };
 
-const generateClaims = async (user, claims) => {
+const generateClaims = async (user, tweets, total, verify, journals) => {
   try {
     const cohere = new CohereClientV2({
       token: process.env.COHERE_API_KEY,
     });
+
+    if(total === 0){
+      return;
+    }
 
     const response = await cohere.chat({
       model: "command-r-plus",
@@ -90,9 +94,10 @@ const generateClaims = async (user, claims) => {
         },
         {
           role: "user",
-          content: `Generate an array of claims based on the Tweets below for the Twitter profile with the user name of ${user}:
+          content: `Generate an array of ${total} claims based on the Tweets below for the Twitter profile with the user name of ${user}:
           
-          ${claims}.
+          ## Tweets:
+          ${tweets}.
           
           Return the array of claims in JSON format. Just return the array and nothing else in your response. Do not include any other letters or characters except what I have requested. Ensure that your output is in the following format with these exact property names:
 
@@ -116,7 +121,11 @@ const generateClaims = async (user, claims) => {
           - category: The category of the claim. Generate a suitable category based on the text of the Tweet.
           - source: The URL of the Tweet.
           - aiAnalysis: Provide a short analysis of the claim using a maximum of 80 words.
-          - trustScore: Based on your analysis, generate a trust score as a percentage. Assign a value between 0 and 100 based on your analysis. Use your discretion to determine the trust score.
+          - trustScore: Based on your analysis, generate a trust score as a percentage. Assign a value between 0 and 100 based on your analysis. ${
+            verify
+              ? `Verify the claim using the following scientific journals: ${journals}`
+              : "Use your discretion to determine the trust score."
+          }
           - researchLink: Provide a URL to the research that supports the claim. If the claim is debunked, provide a URL to the debunking research.
           `,
         },

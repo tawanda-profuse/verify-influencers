@@ -7,11 +7,9 @@ interface Influencer {
   _id: string
   name: string
   profilePhoto: string
-  category: string
-  trustScore: number
-  trend: number
+  claims: [{ category: string; trustScore: number }]
+  // trend: number
   followers: number
-  verifiedClaims: number
 }
 
 const LeaderBoard = () => {
@@ -54,21 +52,41 @@ const LeaderBoard = () => {
           <div className='bg-[#19212E] w-full md:w-1/3 flex items-center gap-[1rem] border border-white rounded-md p-[1rem]'>
             <i className='fas fa-users light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
-              <span className='text-white font-bold text-2xl'>1234</span>
+              <span className='text-white font-bold text-2xl'>
+                {influencers.length}
+              </span>
               Active Influencers
             </div>
           </div>
           <div className='bg-[#19212E] w-full md:w-1/3 flex items-center gap-[1rem] border border-white rounded-md p-[1rem]'>
             <i className='fas fa-check-circle light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
-              <span className='text-white font-bold text-2xl'>25431</span>
+              <span className='text-white font-bold text-2xl'>
+                {influencers.reduce(
+                  (prev, curr: Influencer) => prev + curr.claims.length,
+                  0
+                )}
+              </span>
               Claims Verified
             </div>
           </div>
           <div className='bg-[#19212E] w-full md:w-1/3 flex items-center gap-[1rem] border border-white rounded-md p-[1rem]'>
             <i className='fas fa-bar-chart light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
-              <span className='text-white font-bold text-2xl'>82.7%</span>
+              <span className='text-white font-bold text-2xl'>
+                {(
+                  influencers
+                    .map(
+                      (person: Influencer) =>
+                        person.claims.reduce(
+                          (prev, curr) => prev + curr.trustScore,
+                          0
+                        ) / person.claims.length
+                    )
+                    .reduce((prev, curr) => prev + curr, 0) / influencers.length
+                ).toFixed(2)}
+                %
+              </span>
               Average Trust Score
             </div>
           </div>
@@ -121,7 +139,7 @@ const LeaderBoard = () => {
                         <td className='text-center p-[0.5rem] flex items-center justify-center gap-[1rem]'>
                           <img
                             className={`${
-                              person.profilePhoto && 'bg-[grey] animate-pulse'
+                              !person.profilePhoto && 'bg-[grey] animate-pulse'
                             } rounded-full w-[2rem] h-[2rem]`}
                             src={person.profilePhoto}
                           />{' '}
@@ -133,10 +151,15 @@ const LeaderBoard = () => {
                           </Link>
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          {person.category}
+                          {person.claims[0].category}
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          {person.trustScore}
+                          {Math.ceil(
+                            person.claims.reduce(
+                              (prev, curr) => prev + curr.trustScore,
+                              0
+                            ) / person.claims.length
+                          )}
                         </td>
                         <td className='text-center p-[0.5rem]'>
                           <i className='fas fa-arrow-trend-up'></i>
@@ -146,7 +169,7 @@ const LeaderBoard = () => {
                           {person.followers}
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          {person.verifiedClaims}
+                          {person.claims.length}
                         </td>
                       </tr>
                     ))}

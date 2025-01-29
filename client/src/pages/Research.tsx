@@ -77,7 +77,7 @@ const Research = () => {
     'Discovering influencers',
     'Pulling recent health-related data',
     'Removing duplicate claims',
-    'Categorising claims',
+    'Categorizing claims',
     'Cross-referencing with scientific journals',
     'Determining verification status'
   ]
@@ -86,7 +86,7 @@ const Research = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % items.length)
-    }, 4000)
+    }, 8000)
 
     return () => clearInterval(interval) // Cleanup interval on unmount
   }, [])
@@ -97,7 +97,7 @@ const Research = () => {
         <>
           <Pending />
           <div className='fixed z-[1000] left-0 bottom-0 w-full h-[80vh] flex justify-center items-center'>
-            <p className='text-white text-3xl'>{items[currentIndex]}...</p>
+            <p className='text-white text-3xl animate-pulse select-none'>{items[currentIndex]}...</p>
           </div>
         </>
       )}

@@ -8,7 +8,7 @@ const influencerSchema = new mongoose.Schema({
   website: String,
   bio: String,
   yearlyRevenue: Number,
-  products: Number,
+  products: [String],
   claims: [
     {
       title: String,
