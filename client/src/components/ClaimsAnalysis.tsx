@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 interface Claim {
@@ -13,15 +14,19 @@ interface Claim {
 
 interface ClaimsAnalysisProps {
   claims: Claim[]
+  allClaims: Claim[]
   categories: string[]
   setClaims: React.Dispatch<React.SetStateAction<Claim[]>>
+  setAllClaims: React.Dispatch<React.SetStateAction<Claim[]>>
 }
 
 const ClaimsAnalysis = ({
   claims,
+  allClaims,
   setClaims,
   categories
 }: ClaimsAnalysisProps) => {
+  const [categoryFilter, setCategoryFilter] = useState('All')
   const formatTrustScore = (trustScore: number) => {
     if (trustScore >= 90) {
       return 'light-green-text'
@@ -48,28 +53,28 @@ const ClaimsAnalysis = ({
         </label>
         <div className='flex flex-col md:flex-row gap-[1rem]'>
           <button
-            className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#55b888] text-white font-medium'
-            onClick={() =>
-              setClaims(prev =>
-                prev.filter((claim: Claim) =>
-                  categories.includes(claim.category)
-                )
-              )
-            }
+            className={`text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl ${
+              categoryFilter === 'All' ? 'bg-[#55b888]' : 'bg-[#0E131E]'
+            } text-white font-medium`}
+            onClick={() => {
+              setCategoryFilter('All')
+              setClaims(allClaims)
+            }}
           >
             All Categories
           </button>
           {categories?.map((category, index) => (
             <button
               key={index}
-              className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#0E131E] text-white'
-              onClick={() =>
+              className={`text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl ${
+                categoryFilter === category ? 'bg-[#55b888]' : 'bg-[#0E131E]'
+              } text-white`}
+              onClick={() => {
+                setCategoryFilter(category)
                 setClaims((prev: Claim[]) =>
-                  prev.filter(
-                    (claim: Claim) => claim.category === categories[index]
-                  )
+                  prev.filter((claim: Claim) => claim.category === category)
                 )
-              }
+              }}
             >
               {category}
             </button>
@@ -113,7 +118,9 @@ const ClaimsAnalysis = ({
         </div>
         <div className='flex items-center gap-[0.5rem] text-[#d7d7d7] mt-[2rem]'>
           <i className='fas fa-filter'></i>
-          <span>Active Filters:</span>
+          <span>
+            Active Filters: {categoryFilter !== 'All' && `'${categoryFilter}'`}
+          </span>
         </div>
       </div>
       <p className='text-[#d7d7d7]'>Showing {claims?.length || 0} claims</p>

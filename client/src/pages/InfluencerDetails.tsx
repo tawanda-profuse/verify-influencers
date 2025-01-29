@@ -34,6 +34,7 @@ const InfluencerDetails = () => {
     : 'https://verify-influencers-backend-six.vercel.app/'
   const [influencer, setInfluencer] = useState<Influencer>({} as Influencer)
   const [claims, setClaims] = useState<Claim[]>([])
+  const [allClaims, setAllClaims] = useState<Claim[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('Claims Analysis')
@@ -44,7 +45,10 @@ const InfluencerDetails = () => {
         const response = await axios.get(`${apiUrl}/influencers/${id}`)
         setInfluencer(response.data.influencer)
         setClaims(response.data.influencer.claims)
-        setCategories(response.data.influencer.claims.map((item: Claim) => item.category))
+        setAllClaims(response.data.influencer.claims)
+        setCategories(
+          response.data.influencer.claims.map((item: Claim) => item.category)
+        )
       } catch (error) {
         console.error('Error fetching influencer details', error)
         alert('An error has occurred while fetching the influencer details')
@@ -72,25 +76,28 @@ const InfluencerDetails = () => {
       {isLoading && <Pending />}
       <main className='p-[4rem]'>
         <div className='flex flex-col md:flex-row gap-[2rem]'>
-            <img
-              className='w-[12rem] h-[12rem] mx-auto bg-[white] rounded-[50%]'
-              src={influencer.profilePhoto || "https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp"}
-            />
+          <img
+            className='w-[12rem] h-[12rem] mx-auto bg-[white] rounded-[50%]'
+            src={
+              influencer.profilePhoto ||
+              'https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp'
+            }
+          />
           <div className='flex flex-col w-full md:w-[80%]'>
             <h1 className='text-white text-3xl font-bold'>
               {influencer.name || '--'}
             </h1>
             <div className='flex flex-col md:flex-row gap-[1rem] my-[1rem]'>
-              {[
-                ...new Set(claims?.map(claim => claim.category))
-              ].map((category, index) => (
-                <span
-                  key={index}
-                  className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#323c4d] text-white'
-                >
-                  {category}
-                </span>
-              ))}
+              {[...new Set(claims?.map(claim => claim.category))].map(
+                (category, index) => (
+                  <span
+                    key={index}
+                    className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#323c4d] text-white'
+                  >
+                    {category}
+                  </span>
+                )
+              )}
             </div>
             <p className='gray-text w-[70%]'>{influencer.bio || '--'}</p>
           </div>
@@ -101,10 +108,8 @@ const InfluencerDetails = () => {
               className={`fas fa-arrow-trend-up absolute top-6 right-6 ${
                 claims?.length &&
                 formatTrustScore(
-                  claims.reduce(
-                    (prev, curr) => prev + curr.trustScore,
-                    0
-                  ) / claims.length
+                  claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
+                    claims.length
                 )
               }`}
             ></i>
@@ -113,19 +118,15 @@ const InfluencerDetails = () => {
               className={`${
                 claims?.length &&
                 formatTrustScore(
-                  claims.reduce(
-                    (prev, curr) => prev + curr.trustScore,
-                    0
-                  ) / claims.length
+                  claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
+                    claims.length
                 )
               } text-3xl font-bold`}
             >
               {claims?.length
                 ? (
-                    claims.reduce(
-                      (prev, curr) => prev + curr.trustScore,
-                      0
-                    ) / claims.length
+                    claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
+                    claims.length
                   ).toFixed(1) + '%'
                 : 'N/A'}
             </span>
@@ -179,7 +180,13 @@ const InfluencerDetails = () => {
           )}
         </div>
         {activeTab === 'Claims Analysis' && claims && (
-          <ClaimsAnalysis claims={claims} setClaims={setClaims} categories={[...new Set(categories)]} />
+          <ClaimsAnalysis
+            claims={claims}
+            allClaims={allClaims}
+            setClaims={setClaims}
+            setAllClaims={setAllClaims}
+            categories={[...new Set(categories)]}
+          />
         )}
         {activeTab === 'Recommended Products' && (
           <Products products={influencer.products} />
