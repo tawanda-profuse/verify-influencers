@@ -167,7 +167,6 @@ const generateClaims = async (user, tweets, total, verify, journals) => {
         "Invalid JSON response from Cohere for claims: ",
         responseText
       );
-      return [];
     }
   } catch (error) {
     if (error instanceof CohereTimeoutError) {

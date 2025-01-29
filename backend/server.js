@@ -15,6 +15,8 @@ const mongoose = require("mongoose");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
+
 mongoose
   .connect(process.env.MONGODB_URL)
   .then(() => console.log("MongoDB Connected"))
@@ -26,35 +28,12 @@ app.get("/", async (req, res) => {
 
 app.get("/test", async (req, res) => {
   try {
-    const products = 10;
-    const revenueAnalysis = true;
-    const user = await getUserDetails("drewcaveman");
+    const influencerList = await Influencer.find().select("twitterUserName");
 
-    let statsMessage = `Analyze this Twitter user's posts or any other information available online and provide the following information: products ${
-      revenueAnalysis && "and yearly revenue"
-    }.
-    
-    ### Twitter User: ${user?.username} ###
-    ### Person name: ${user?.name} ###
-
-    ${user.tweets && `Claims: ${user.tweets}`}
-
-    Please return your data in JSON format. Do not include any other letters or characters except what I have requested. Only generate a maximum of ${products} products. Ensure that your output is in the following format with these exact property names:
-
-    {
-      "yearlyRevenue": 0,
-      "products": []
-    }
-
-    If you cannot find the information, return 0 for yearlyRevenue and an empty array for products.
-
-    - Products refers to any products that the influencer sells or promotes.
-    - Yearly revenue refers to the estimated yearly revenue of the influencer. If you cannot find the information, return 0.
-    `;
-    const details = await cohereAIDiscover(statsMessage);
-    console.log({
-      details: JSON.parse(details),
-    });
+    const allInfluencers = influencerList.map((user) =>
+      user.twitterUserName.toLowerCase()
+    );
+    console.log(allInfluencers);
     res.status(200).send({ message: "Success" });
   } catch (error) {
     res.status(500).send({ message: "Error", error });
@@ -118,16 +97,18 @@ app.post("/discover", async (req, res) => {
       console.log("Generated influencers: ", generatedInfluencers);
       const twitterRateLimit = 3; // Free tier has a limit of 3 API requests every 15 minutes
       const influencer = new Influencer();
-      const allInfluencers = await Influencer.find()
-        .select("twitterUserName")
-        .map((user) => user.twitterUserName.toLowerCase());
+      const influencerList = await Influencer.find().select("twitterUserName");
+
+      const allInfluencers = influencerList.map((user) =>
+        user.twitterUserName.toLowerCase()
+      );
 
       for (let i = 0; i < twitterRateLimit; i++) {
         // Avoid duplicates in the database
         if (!allInfluencers.includes(generatedInfluencers[i].toLowerCase())) {
           const user = await getUserDetails(generatedInfluencers[i]);
           let claims = [];
-          if (user.tweets) {
+          if (user?.tweets) {
             claims = await generateClaims(
               user?.username,
               user?.tweets,
@@ -136,6 +117,8 @@ app.post("/discover", async (req, res) => {
               journals
             );
           }
+
+          console.log("Twitter user: ", user)
 
           // Insert the response into the database
           influencer.name = user?.name;
@@ -250,7 +233,13 @@ app.get("/influencers/:id", async (req, res) => {
 if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT || 5000;
   app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+    console.log(
+      `Server running on http://localhost:${port}. Using ${
+        process.env.MONGODB_URL.includes("mongodb+srv")
+          ? "production"
+          : "development"
+      } database`
+    );
   });
 }
 

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Pending from '../components/Pending'
 import ClaimsAnalysis from '../components/ClaimsAnalysis'
 import Products from '../components/Products'
@@ -87,7 +87,7 @@ const InfluencerDetails = () => {
             <h1 className='text-white text-3xl font-bold'>
               {influencer.name || '--'}
             </h1>
-            <div className='flex flex-col md:flex-row gap-[1rem] my-[1rem]'>
+            <div className='flex flex-col md:flex-row flex-wrap gap-[1rem] my-[1rem]'>
               {[...new Set(claims?.map(claim => claim.category))].map(
                 (category, index) => (
                   <span
@@ -105,7 +105,13 @@ const InfluencerDetails = () => {
         <div className='grid grid-cols-1 md:grid-cols-4 my-[2rem] w-full gap-[1rem]'>
           <div className='bg-[#19212E] w-full flex flex-col gap-[1rem] border border-white rounded-md p-[2rem] relative'>
             <i
-              className={`fas fa-arrow-trend-up absolute top-6 right-6 ${
+              className={`fas ${
+                claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
+                  claims.length >
+                50
+                  ? 'fa-arrow-trend-up text-green-300'
+                  : 'fa-arrow-trend-down text-red-400'
+              } absolute top-6 right-6 ${
                 claims?.length &&
                 formatTrustScore(
                   claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
@@ -154,9 +160,15 @@ const InfluencerDetails = () => {
             <span className='gray-text'>Recommended Products</span>
           </div>
           <div className='bg-[#19212E] w-full flex flex-col gap-[1rem] border border-white rounded-md p-[2rem] relative'>
-            <i className='fas fa-arrow-trend-up absolute top-6 right-6 light-green-text'></i>
+            <Link
+              to={`https://x.com/${influencer.twitterUserName}`}
+              target='_blank'
+              title='View followers'
+            >
+              <i className='fas fa-users absolute top-6 right-6 text-white hover:text-green-300 hover:underline'></i>
+            </Link>
             <span className='text-white font-bold text-2xl'>Followers</span>
-            <span className='light-green-text text-3xl font-bold'>
+            <span className='text-white text-3xl font-bold'>
               {new Intl.NumberFormat('en-US').format(influencer.followers) || 0}
             </span>
             <span className='gray-text'>Total Following</span>
@@ -184,7 +196,6 @@ const InfluencerDetails = () => {
             claims={claims}
             allClaims={allClaims}
             setClaims={setClaims}
-            setAllClaims={setAllClaims}
             categories={[...new Set(categories)]}
           />
         )}

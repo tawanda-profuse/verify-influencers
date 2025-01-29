@@ -22,7 +22,7 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
           ))}
         </>
       ) : (
-        <p className='text-center light-gray-text'>No data available</p>
+        <p className='text-center light-gray-text my-[2rem]'>No data available</p>
       )}
     </>
   )

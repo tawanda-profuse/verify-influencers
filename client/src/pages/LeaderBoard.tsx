@@ -40,6 +40,16 @@ const LeaderBoard = () => {
     fetchData()
   }, [apiUrl])
 
+  const formatTrustScore = (trustScore: number) => {
+    if (trustScore >= 90) {
+      return 'light-green-text'
+    } else if (trustScore <= 90 && trustScore >= 50) {
+      return 'text-[orange]'
+    } else if (trustScore < 50) {
+      return 'text-[red]'
+    }
+  }
+
   return (
     <>
       {isLoading && <Pending />}
@@ -57,7 +67,7 @@ const LeaderBoard = () => {
             <i className='fas fa-users light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
               <span className='text-white font-bold text-2xl'>
-                {influencers.length}
+                {allInfluencers.length}
               </span>
               Active Influencers
             </div>
@@ -66,7 +76,7 @@ const LeaderBoard = () => {
             <i className='fas fa-check-circle light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
               <span className='text-white font-bold text-2xl'>
-                {influencers.reduce(
+                {allInfluencers.reduce(
                   (prev, curr: Influencer) => prev + curr.claims.length,
                   0
                 )}
@@ -77,9 +87,9 @@ const LeaderBoard = () => {
           <div className='bg-[#19212E] w-full md:w-1/3 flex items-center gap-[1rem] border border-white rounded-md p-[1rem]'>
             <i className='fas fa-bar-chart light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
-              <span className='text-white font-bold text-2xl'>
-                {(
-                  influencers
+              <span
+                className={`font-bold text-2xl ${formatTrustScore(
+                  allInfluencers
                     .map(
                       (person: Influencer) =>
                         person.claims.reduce(
@@ -87,7 +97,21 @@ const LeaderBoard = () => {
                           0
                         ) / person.claims.length
                     )
-                    .reduce((prev, curr) => prev + curr, 0) / influencers.length
+                    .reduce((prev, curr) => prev + curr, 0) /
+                    allInfluencers.length
+                )}`}
+              >
+                {(
+                  allInfluencers
+                    .map(
+                      (person: Influencer) =>
+                        person.claims.reduce(
+                          (prev, curr) => prev + curr.trustScore,
+                          0
+                        ) / person.claims.length
+                    )
+                    .reduce((prev, curr) => prev + curr, 0) /
+                  allInfluencers.length
                 ).toFixed(2)}
                 %
               </span>
@@ -95,10 +119,12 @@ const LeaderBoard = () => {
             </div>
           </div>
         </div>
-        <div className='w-full flex flex-col md:flex-row justify-between gap-[1rem]'>
+        <div className='w-full flex flex-col md:flex-row items-center justify-between gap-[1rem]'>
           <div className='flex w-full md:max-w-3/4 gap-[1rem] flex-wrap'>
             <button
-              className={`cursor-pointer px-[1rem] py-[0.1rem] bg-[#323c4d] text-white rounded-3xl ${searchItem === "All" && "green-background"}`}
+              className={`cursor-pointer px-[1rem] py-[0.1rem] bg-[#323c4d] text-white rounded-3xl ${
+                searchItem === 'All' && 'green-background'
+              }`}
               onClick={() => {
                 setSearchItem('All')
                 setInfluencers(allInfluencers)
@@ -114,7 +140,9 @@ const LeaderBoard = () => {
               )
             ).map((category, index: number) => (
               <button
-                className={`cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white ${searchItem === category && "green-background"}`}
+                className={`cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white ${
+                  searchItem === category && 'green-background'
+                }`}
                 key={index}
                 onClick={() => {
                   setSearchItem(category)
@@ -130,11 +158,17 @@ const LeaderBoard = () => {
             ))}
           </div>
           <button
-            className='cursor-pointer rounded-md px-[1rem] py-[0.5rem] bg-[#323c4d] text-white'
+            className='w-full md:w-[10rem] cursor-pointer rounded-md px-[1rem] py-[0.5rem] bg-[#323c4d] text-white'
             onClick={() => setSortOrder(prev => !prev)}
           >
-            <i className={`fas fa-arrow-up-long ${sortOrder && "text-[orange]"}`}></i>
-            <i className={`fas fa-arrow-down-long ${!sortOrder && "text-[orange]"}`}></i>{' '}
+            <i
+              className={`fas fa-arrow-up-long ${sortOrder && 'text-[orange]'}`}
+            ></i>
+            <i
+              className={`fas fa-arrow-down-long ${
+                !sortOrder && 'text-[orange]'
+              }`}
+            ></i>{' '}
             {sortOrder ? 'Lowest First' : 'Highest First'}
           </button>
         </div>
@@ -181,17 +215,35 @@ const LeaderBoard = () => {
                         <td className='text-center p-[0.5rem]'>
                           {person.claims[0].category}
                         </td>
-                        <td className='text-center p-[0.5rem]'>
+                        <td
+                          className={`text-center p-[0.5rem] ${formatTrustScore(
+                            person.claims.reduce(
+                              (prev, curr) => prev + curr.trustScore,
+                              0
+                            ) / person.claims.length
+                          )}`}
+                        >
                           {Math.ceil(
                             person.claims.reduce(
                               (prev, curr) => prev + curr.trustScore,
                               0
                             ) / person.claims.length
                           )}
+                          %
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          <i className='fas fa-arrow-trend-up'></i>
-                          {/* {person.trend} */}
+                          <i
+                            className={`fas ${
+                              person.claims.reduce(
+                                (prev, curr) => prev + curr.trustScore,
+                                0
+                              ) /
+                                person.claims.length >
+                              50
+                                ? 'fa-arrow-trend-up text-green-300'
+                                : 'fa-arrow-trend-down text-red-400'
+                            }`}
+                          ></i>
                         </td>
                         <td className='text-center p-[0.5rem]'>
                           {new Intl.NumberFormat('en-US').format(

@@ -17,7 +17,6 @@ interface ClaimsAnalysisProps {
   allClaims: Claim[]
   categories: string[]
   setClaims: React.Dispatch<React.SetStateAction<Claim[]>>
-  setAllClaims: React.Dispatch<React.SetStateAction<Claim[]>>
 }
 
 const ClaimsAnalysis = ({
@@ -27,6 +26,8 @@ const ClaimsAnalysis = ({
   categories
 }: ClaimsAnalysisProps) => {
   const [categoryFilter, setCategoryFilter] = useState('All')
+  const [verificationFilter, setVerificationFilter] = useState('All')
+
   const formatTrustScore = (trustScore: number) => {
     if (trustScore >= 90) {
       return 'light-green-text'
@@ -51,13 +52,14 @@ const ClaimsAnalysis = ({
         <label className='light-gray-text font-medium my-[1rem]'>
           Categories
         </label>
-        <div className='flex flex-col md:flex-row gap-[1rem]'>
+        <div className='flex flex-col md:flex-row flex-wrap gap-[1rem]'>
           <button
             className={`text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl ${
               categoryFilter === 'All' ? 'bg-[#55b888]' : 'bg-[#0E131E]'
             } text-white font-medium`}
             onClick={() => {
               setCategoryFilter('All')
+              setVerificationFilter("All")
               setClaims(allClaims)
             }}
           >
@@ -71,8 +73,9 @@ const ClaimsAnalysis = ({
               } text-white`}
               onClick={() => {
                 setCategoryFilter(category)
-                setClaims((prev: Claim[]) =>
-                  prev.filter((claim: Claim) => claim.category === category)
+                setVerificationFilter("All")
+                setClaims(
+                  allClaims.filter(claim => claim.category === category)
                 )
               }}
             >
@@ -85,19 +88,40 @@ const ClaimsAnalysis = ({
             <label className='light-gray-text font-medium my-[1rem]'>
               Verification Status
             </label>
-            <div className='flex flex-col md:flex-row gap-[1rem]'>
-              <button className='text-md cursor-pointer py-[0.5rem] px-[1rem] rounded-lg bg-[#55b888] text-white'>
+            <div className='flex flex-col md:flex-row flex-wrap gap-[1rem]'>
+              <button
+                className={`text-md cursor-pointer py-[0.5rem] px-[1rem] rounded-lg ${
+                  verificationFilter === 'All' ? 'bg-[#55b888]' : 'bg-[#0E131E]'
+                } text-white`}
+                onClick={() => {
+                  setVerificationFilter('All')
+                  setCategoryFilter("All")
+                  setClaims(allClaims)
+                }}
+              >
                 All Statuses
               </button>
-              <button className='text-md cursor-pointer py-[0.5rem] px-[1rem] rounded-lg bg-[#0E131E] text-white'>
-                Verified
-              </button>
-              <button className='text-md cursor-pointer py-[0.5rem] px-[1rem] rounded-lg bg-[#0E131E] text-white'>
-                Questionable
-              </button>
-              <button className='text-md cursor-pointer py-[0.5rem] px-[1rem] rounded-lg bg-[#0E131E] text-white'>
-                Debunked
-              </button>
+              {['Verified', 'Questionable', 'Debunked'].map((item, index) => (
+                <button
+                  className={`text-md cursor-pointer py-[0.5rem] px-[1rem] rounded-lg ${
+                    verificationFilter === item
+                      ? 'bg-[#55b888]'
+                      : 'bg-[#0E131E]'
+                  } text-white`}
+                  key={index}
+                  onClick={() => {
+                    setVerificationFilter(item)
+                    setCategoryFilter("All")
+                    setClaims(
+                      allClaims.filter(
+                        claim => claim.verificationStatus === item
+                      )
+                    )
+                  }}
+                >
+                  {item}
+                </button>
+              ))}
             </div>
           </div>
           <div className='grid w-full'>
@@ -119,7 +143,17 @@ const ClaimsAnalysis = ({
         <div className='flex items-center gap-[0.5rem] text-[#d7d7d7] mt-[2rem]'>
           <i className='fas fa-filter'></i>
           <span>
-            Active Filters: {categoryFilter !== 'All' && `'${categoryFilter}'`}
+            Active Filters:{' '}
+            {categoryFilter !== 'All' && (
+              <span className='opaque-green-bg text-white py-[0.2rem] px-[0.5rem] rounded-lg'>
+                {categoryFilter}
+              </span>
+            )}
+            {verificationFilter !== 'All' && (
+              <span className='opaque-green-bg text-white py-[0.2rem] px-[0.5rem] rounded-lg'>
+                {verificationFilter}
+              </span>
+            )}
           </span>
         </div>
       </div>
