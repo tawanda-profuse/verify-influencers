@@ -14,18 +14,17 @@ interface Influencer {
   bio: string
   yearlyRevenue: number
   products: [string]
-  claims: [
-    {
-      title: string
-      verificationStatus: string
-      date: string
-      category: string
-      source: string
-      aiAnalysis: string
-      trustScore: number
-      researchLink: string
-    }
-  ]
+}
+
+type Claim = {
+  title: string
+  verificationStatus: string
+  date: string
+  category: string
+  source: string
+  aiAnalysis: string
+  trustScore: number
+  researchLink: string
 }
 
 const InfluencerDetails = () => {
@@ -34,6 +33,8 @@ const InfluencerDetails = () => {
     ? 'http://localhost:5000'
     : 'https://verify-influencers-backend-six.vercel.app/'
   const [influencer, setInfluencer] = useState<Influencer>({} as Influencer)
+  const [claims, setClaims] = useState<Claim[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('Claims Analysis')
 
@@ -42,6 +43,8 @@ const InfluencerDetails = () => {
       try {
         const response = await axios.get(`${apiUrl}/influencers/${id}`)
         setInfluencer(response.data.influencer)
+        setClaims(response.data.influencer.claims)
+        setCategories(response.data.influencer.claims.map((item: Claim) => item.category))
       } catch (error) {
         console.error('Error fetching influencer details', error)
         alert('An error has occurred while fetching the influencer details')
@@ -81,7 +84,7 @@ const InfluencerDetails = () => {
             </h1>
             <div className='flex flex-col md:flex-row gap-[1rem] my-[1rem]'>
               {[
-                ...new Set(influencer.claims?.map(claim => claim.category))
+                ...new Set(claims?.map(claim => claim.category))
               ].map((category, index) => (
                 <span
                   key={index}
@@ -98,33 +101,33 @@ const InfluencerDetails = () => {
           <div className='bg-[#19212E] w-full flex flex-col gap-[1rem] border border-white rounded-md p-[2rem] relative'>
             <i
               className={`fas fa-arrow-trend-up absolute top-6 right-6 ${
-                influencer.claims?.length &&
+                claims?.length &&
                 formatTrustScore(
-                  influencer?.claims.reduce(
+                  claims.reduce(
                     (prev, curr) => prev + curr.trustScore,
                     0
-                  ) / influencer.claims.length
+                  ) / claims.length
                 )
               }`}
             ></i>
             <span className='text-white font-bold text-2xl'>Trust Score</span>
             <span
               className={`${
-                influencer.claims?.length &&
+                claims?.length &&
                 formatTrustScore(
-                  influencer?.claims.reduce(
+                  claims.reduce(
                     (prev, curr) => prev + curr.trustScore,
                     0
-                  ) / influencer.claims.length
+                  ) / claims.length
                 )
               } text-3xl font-bold`}
             >
-              {influencer.claims?.length
+              {claims?.length
                 ? (
-                    influencer.claims.reduce(
+                    claims.reduce(
                       (prev, curr) => prev + curr.trustScore,
                       0
-                    ) / influencer.claims.length
+                    ) / claims.length
                   ).toFixed(1) + '%'
                 : 'N/A'}
             </span>
@@ -177,8 +180,8 @@ const InfluencerDetails = () => {
             )
           )}
         </div>
-        {activeTab === 'Claims Analysis' && (
-          <ClaimsAnalysis influencer={influencer} />
+        {activeTab === 'Claims Analysis' && claims && (
+          <ClaimsAnalysis claims={claims} setClaims={setClaims} categories={[...new Set(categories)]} />
         )}
         {activeTab === 'Recommended Products' && (
           <Products products={influencer.products} />

@@ -77,32 +77,45 @@ app.post("/discover", async (req, res) => {
       notes,
     } = req.body;
 
-    let statsMessage = `Analyze this Twitter user's posts or any other information available online and provide the following information: products ${
-      revenueAnalysis && "and yearly revenue"
-    }.
-    
-    ### Twitter User: ${user?.username} ###
-    ### Person name: ${user?.name} ###
-
-    ${claims && `Claims: ${claims}`}
-
-    Please return your data in JSON format. Do not include any other letters or characters except what I have requested. Only generate a maximum of ${products} products. Ensure that your output is in the following format with these exact property names:
-
-    {
-      "yearlyRevenue": 0,
-      "products": []
-    }
-
-    If you cannot find the information, return 0 for yearlyRevenue and an empty array for products.
-
-    - Products refers to any products that the influencer sells or promotes.
-    - Yearly revenue refers to the estimated yearly revenue of the influencer. If you cannot find the information, return 0.
-    `;
+    const statsMessage = (user, claims) => {
+      return `Analyze this Twitter user's posts or any other information available online and provide the following information: products ${
+        revenueAnalysis && "and yearly revenue"
+      }.
+      
+      ### Twitter User: ${user?.username} ###
+      ### Person name: ${user?.name} ###
+  
+      ${claims && `Claims: ${claims}`}
+  
+      Please return your data in JSON format. Do not include any other letters or characters except what I have requested. Only generate a maximum of ${products} products. Ensure that your output is in the following format with these exact property names:
+  
+      {
+        "yearlyRevenue": 0,
+        "products": []
+      }
+  
+      If you cannot find the information, return 0 for yearlyRevenue and an empty array for products.
+  
+      - Products refers to any products that the influencer sells or promotes.
+      - Yearly revenue refers to the estimated yearly revenue of the influencer. If you cannot find the information, return 0.
+      `;
+    };
 
     // If the researchType === 'discover'
     if (researchType === "discover") {
       const generatedInfluencers = await cohereGenerateInfluencers();
-      const influencers = JSON.parse(generatedInfluencers);
+      if (!generatedInfluencers) {
+        return res
+          .status(500)
+          .json({ message: "Failed to retrieve influencer data." });
+      }
+
+      if (!Array.isArray(generatedInfluencers)) {
+        return res
+          .status(500)
+          .json({ message: "Unexpected API response format." });
+      }
+      console.log("Generated influencers: ", generatedInfluencers);
       const twitterRateLimit = 3; // Free tier has a limit of 3 API requests every 15 minutes
       const influencer = new Influencer();
       const allInfluencers = await Influencer.find()
@@ -111,8 +124,8 @@ app.post("/discover", async (req, res) => {
 
       for (let i = 0; i < twitterRateLimit; i++) {
         // Avoid duplicates in the database
-        if (!allInfluencers.includes(influencers[i].toLowerCase())) {
-          const user = await getUserDetails(influencers[i]);
+        if (!allInfluencers.includes(generatedInfluencers[i].toLowerCase())) {
+          const user = await getUserDetails(generatedInfluencers[i]);
           let claims = [];
           if (user.tweets) {
             claims = await generateClaims(
@@ -133,7 +146,8 @@ app.post("/discover", async (req, res) => {
           influencer.website = user?.url;
           influencer.claims = claims || [];
 
-          const details = await cohereAIDiscover(statsMessage);
+          const message = statsMessage(user, claims);
+          const details = await cohereAIDiscover(message);
           influencer.yearlyRevenue = details?.yearlyRevenue;
           influencer.products = details?.products;
           await influencer.save();
@@ -145,6 +159,7 @@ app.post("/discover", async (req, res) => {
       const searchMessage = `What is the Twitter user name of ${influencerName}? Only return the user name in your response and do not include anything else. If you cannot find their username, return nothing.`;
       const twitterUsernameResponse = await cohereAIDiscover(searchMessage);
       if (twitterUsernameResponse) {
+        console.log("Twitter user: ", twitterUsernameResponse);
         const user = await getUserDetails(twitterUsernameResponse);
         let claims = [];
         if (user.tweets) {
@@ -172,7 +187,8 @@ app.post("/discover", async (req, res) => {
           influencer.bio = user?.bio;
           influencer.claims = claims || [];
 
-          const details = await cohereAIDiscover(statsMessage);
+          const message = statsMessage(user, claims);
+          const details = await cohereAIDiscover(message);
           influencer.yearlyRevenue = details?.yearlyRevenue;
           influencer.products = details?.products;
           await influencer.save();
@@ -186,7 +202,7 @@ app.post("/discover", async (req, res) => {
       }
     }
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Submitted successfully",
     });
   } catch (error) {

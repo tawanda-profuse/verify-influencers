@@ -15,8 +15,9 @@ const Products: React.FC<ProductsProps> = ({ products }) => {
               key={index}
             >
               <div className='flex justify-between w-full'>
-                <div className='flex flex-col gap-[1rem]'>
-                  <p className='text-white font-medium'>{product}</p>
+                <div className='flex gap-[1rem] text-white font-medium'>
+                  <span>{index + 1}.</span>
+                  <p>{product}</p>
                 </div>
               </div>
             </article>

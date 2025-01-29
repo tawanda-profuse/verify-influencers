@@ -11,11 +11,17 @@ interface Claim {
   researchLink: string
 }
 
-interface Influencer {
+interface ClaimsAnalysisProps {
   claims: Claim[]
+  categories: string[]
+  setClaims: React.Dispatch<React.SetStateAction<Claim[]>>
 }
 
-const ClaimsAnalysis = ({ influencer }: { influencer: Influencer }) => {
+const ClaimsAnalysis = ({
+  claims,
+  setClaims,
+  categories
+}: ClaimsAnalysisProps) => {
   const formatTrustScore = (trustScore: number) => {
     if (trustScore >= 90) {
       return 'light-green-text'
@@ -41,19 +47,24 @@ const ClaimsAnalysis = ({ influencer }: { influencer: Influencer }) => {
           Categories
         </label>
         <div className='flex flex-col md:flex-row gap-[1rem]'>
-          <button className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#55b888] text-white font-medium'>
+          <button className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#55b888] text-white font-medium' onClick={() => setClaims((prev) => 
+            prev.filter((claim: Claim) => categories.includes(claim.category))
+          )}>
             All Categories
           </button>
-          {[...new Set(influencer.claims?.map(claim => claim.category))]?.map(
-            (category, index) => (
-              <button
-                key={index}
-                className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#0E131E] text-white'
-              >
-                {category}
-              </button>
-            )
-          )}
+          {categories?.map((category, index) => (
+            <button
+              key={index}
+              className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#0E131E] text-white'
+              onClick={() =>
+                setClaims((prev: Claim[]) =>
+                  prev.filter((claim: Claim) => claim.category === categories[index])
+                )
+              }
+            >
+              {category}
+            </button>
+          ))}
         </div>
         <div className='flex flex-col md:flex-row w-full items-center'>
           <div className='grid w-full'>
@@ -96,11 +107,9 @@ const ClaimsAnalysis = ({ influencer }: { influencer: Influencer }) => {
           <span>Active Filters:</span>
         </div>
       </div>
-      <p className='text-[#d7d7d7]'>
-        Showing {influencer?.claims?.length || 0} claims
-      </p>
+      <p className='text-[#d7d7d7]'>Showing {claims?.length || 0} claims</p>
       <section className='flex flex-col my-[2rem]'>
-        {influencer.claims?.map((claim, index) => (
+        {claims?.map((claim, index) => (
           <article
             className='flex flex-col border-b border-white py-[1rem]'
             key={index}

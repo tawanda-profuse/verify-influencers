@@ -23,20 +23,33 @@ const cohereGenerateInfluencers = async () => {
         {
           role: "user",
           content:
-            "Generate a list of 10 health influencers from real Twitter user accounts and return a JSON array of their Twitter user names. Just return the JSON array and nothing else in your response",
+            "Generate a list of 10 health influencers from real Twitter user accounts and return a JSON array of their Twitter user names. Just return the JSON array and nothing else in your response.",
         },
       ],
     });
 
-    return response.message.content[0].text;
+    const responseText = response.message.content[0].text;
+
+    if (!responseText) {
+      throw new Error("Invalid response structure from Cohere API");
+    }
+
+    try {
+      return JSON.parse(responseText); // Ensure it's valid JSON
+    } catch (parseError) {
+      console.error("Invalid JSON response from Cohere: ", responseText);
+      return null; // Handle invalid JSON gracefully
+    }
   } catch (error) {
     if (error instanceof CohereTimeoutError) {
       console.log("Request timed out", error);
     } else if (error instanceof CohereError) {
       // catch all errors
-      console.log(err.statusCode);
-      console.log(err.message);
-      console.log(err.body);
+      console.log(error.statusCode);
+      console.log(error.message);
+      console.log(error.body);
+    } else {
+      console.error("Error calling Cohere API: ", error);
     }
   }
 };
@@ -60,15 +73,24 @@ const cohereAIDiscover = async (message) => {
       ],
     });
 
-    return response.message.content[0].text;
+    const responseText = response.message.content[0].text;
+
+    if (!responseText) {
+      throw new Error("Invalid response structure from Cohere API");
+    }
+
+    return responseText
   } catch (error) {
     if (error instanceof CohereTimeoutError) {
       console.log("Request timed out", error);
     } else if (error instanceof CohereError) {
       // catch all errors
-      console.log(err.statusCode);
-      console.log(err.message);
-      console.log(err.body);
+      console.log(error.statusCode);
+      console.log(error.message);
+      console.log(error.body);
+    } else {
+      console.error("Error calling Cohere API for discovery: ", error);
+      return null;
     }
   }
 };
@@ -79,8 +101,8 @@ const generateClaims = async (user, tweets, total, verify, journals) => {
       token: process.env.COHERE_API_KEY,
     });
 
-    if(total === 0){
-      return;
+    if (total === 0) {
+      return [];
     }
 
     const response = await cohere.chat({
@@ -95,7 +117,7 @@ const generateClaims = async (user, tweets, total, verify, journals) => {
         {
           role: "user",
           content: `Generate an array of ${total} claims based on the Tweets below for the Twitter profile with the user name of ${user}:
-          
+    
           ## Tweets:
           ${tweets}.
           
@@ -127,13 +149,39 @@ const generateClaims = async (user, tweets, total, verify, journals) => {
               : "Use your discretion to determine the trust score."
           }
           - researchLink: Provide a URL to the research that supports the claim. If the claim is debunked, provide a URL to the debunking research.
-          `,
+    `,
         },
       ],
     });
 
-    return response.message.content[0].text;
-  } catch (error) {}
+    const responseText = response.message.content[0].text;
+
+    if (!responseText) {
+      throw new Error("Invalid response structure from Cohere API");
+    }
+
+    try {
+      return JSON.parse(responseText); // Validate JSON format
+    } catch (parseError) {
+      console.error(
+        "Invalid JSON response from Cohere for claims: ",
+        responseText
+      );
+      return [];
+    }
+  } catch (error) {
+    if (error instanceof CohereTimeoutError) {
+      console.log("Request timed out", error);
+    } else if (error instanceof CohereError) {
+      // catch all errors
+      console.log(error.statusCode);
+      console.log(error.message);
+      console.log(error.body);
+    } else {
+      console.error("Error calling Cohere API for claims: ", error);
+      return [];
+    }
+  }
 };
 
 module.exports = {
