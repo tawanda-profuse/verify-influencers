@@ -20,6 +20,10 @@ mongoose
   .then(() => console.log("MongoDB Connected"))
   .catch((error) => console.error("Mongoose Error", error));
 
+app.get("/", async (req, res) => {
+  res.status(200).send({ message: "Successful response" });
+});
+
 app.get("/test", async (req, res) => {
   try {
     const tweets = [
