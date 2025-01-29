@@ -17,14 +17,17 @@ const LeaderBoard = () => {
     ? 'http://localhost:5000'
     : 'https://verify-influencers-backend-six.vercel.app/'
   const [influencers, setInfluencers] = useState([])
+  const [allInfluencers, setAllInfluencers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [sortOrder, setSortOrder] = useState(false);
+  const [sortOrder, setSortOrder] = useState(true)
+  const [searchItem, setSearchItem] = useState('All')
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${apiUrl}/leaderboard`)
         setInfluencers(response.data.influencers)
+        setAllInfluencers(response.data.influencers)
       } catch (error) {
         console.error(error)
         alert('An error has occurred while fetching the leaderboard')
@@ -36,10 +39,6 @@ const LeaderBoard = () => {
 
     fetchData()
   }, [apiUrl])
-
-  const sortInfluencers = (data) => {
-
-  }
 
   return (
     <>
@@ -97,26 +96,46 @@ const LeaderBoard = () => {
           </div>
         </div>
         <div className='w-full flex flex-col md:flex-row justify-between gap-[1rem]'>
-          <div className='flex gap-[1rem]'>
-            <button className='cursor-pointer px-[1rem] py-[0.1rem] text-white rounded-3xl green-background'>
+          <div className='flex w-full md:max-w-3/4 gap-[1rem] flex-wrap'>
+            <button
+              className={`cursor-pointer px-[1rem] py-[0.1rem] bg-[#323c4d] text-white rounded-3xl ${searchItem === "All" && "green-background"}`}
+              onClick={() => {
+                setSearchItem('All')
+                setInfluencers(allInfluencers)
+              }}
+            >
               All
             </button>
-            <button className='cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white'>
-              Nutrition
-            </button>
-            <button className='cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white'>
-              Fitness
-            </button>
-            <button className='cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white'>
-              Medicine
-            </button>
-            <button className='cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white'>
-              Mental Health
-            </button>
+            {Array.from(
+              new Set(
+                allInfluencers.flatMap((person: Influencer) =>
+                  person.claims.map(item => item.category)
+                )
+              )
+            ).map((category, index: number) => (
+              <button
+                className={`cursor-pointer px-[1rem] py-[0.1rem] rounded-3xl bg-[#323c4d] text-white ${searchItem === category && "green-background"}`}
+                key={index}
+                onClick={() => {
+                  setSearchItem(category)
+                  setInfluencers(
+                    allInfluencers.filter((person: Influencer) =>
+                      person.claims.some(item => item.category === searchItem)
+                    )
+                  )
+                }}
+              >
+                {category}
+              </button>
+            ))}
           </div>
-          <button className='cursor-pointer rounded-md px-[1rem] py-[0.5rem] bg-[#323c4d] text-white' onClick={() => setSortOrder(prev => !prev)}>
-            <i className='fas fa-arrow-up-long'></i>
-            <i className='fas fa-arrow-down-long'></i> {sortOrder ? "Lowest First" : "Highest First"}
+          <button
+            className='cursor-pointer rounded-md px-[1rem] py-[0.5rem] bg-[#323c4d] text-white'
+            onClick={() => setSortOrder(prev => !prev)}
+          >
+            <i className={`fas fa-arrow-up-long ${sortOrder && "text-[orange]"}`}></i>
+            <i className={`fas fa-arrow-down-long ${!sortOrder && "text-[orange]"}`}></i>{' '}
+            {sortOrder ? 'Lowest First' : 'Highest First'}
           </button>
         </div>
         {influencers.length > 0 ? (
@@ -134,22 +153,23 @@ const LeaderBoard = () => {
                 </thead>
                 <tbody className='text-white'>
                   {influencers
-                    .sort(
-                      (a: Influencer, b: Influencer) => {
-                       if(sortOrder){
-                         return b.followers - a.followers
-                        } else {
-                         return a.followers - b.followers
-                       }
+                    .sort((a: Influencer, b: Influencer) => {
+                      if (sortOrder) {
+                        return b.followers - a.followers
+                      } else {
+                        return a.followers - b.followers
                       }
-                    )
+                    })
                     .map((person: Influencer, index: number) => (
                       <tr key={index}>
                         <td className='text-center p-[0.5rem]'>{index + 1}</td>
                         <td className='text-center p-[0.5rem] flex items-center justify-center gap-[1rem]'>
                           <img
                             className={`rounded-full w-[2rem] h-[2rem]`}
-                            src={person.profilePhoto || "https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp"}
+                            src={
+                              person.profilePhoto ||
+                              'https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp'
+                            }
                           />{' '}
                           <Link
                             to={`/influencer/${person._id}`}
@@ -174,7 +194,9 @@ const LeaderBoard = () => {
                           {/* {person.trend} */}
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          {new Intl.NumberFormat('en-US').format(person.followers)}
+                          {new Intl.NumberFormat('en-US').format(
+                            person.followers
+                          )}
                         </td>
                         <td className='text-center p-[0.5rem]'>
                           {person.claims.length}
