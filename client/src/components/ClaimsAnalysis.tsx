@@ -61,7 +61,7 @@ const ClaimsAnalysis = ({
             onClick={() => {
               setCategoryFilter('All')
               setVerificationFilter('All')
-              setDateFilter("")
+              setDateFilter('')
               setClaims(allClaims)
             }}
           >
@@ -76,7 +76,7 @@ const ClaimsAnalysis = ({
               onClick={() => {
                 setCategoryFilter(category)
                 setVerificationFilter('All')
-                setDateFilter("")
+                setDateFilter('')
                 setClaims(
                   allClaims.filter(claim => claim.category === category)
                 )
@@ -99,7 +99,7 @@ const ClaimsAnalysis = ({
                 onClick={() => {
                   setVerificationFilter('All')
                   setCategoryFilter('All')
-                  setDateFilter("")
+                  setDateFilter('')
                   setClaims(allClaims)
                 }}
               >
@@ -116,7 +116,7 @@ const ClaimsAnalysis = ({
                   onClick={() => {
                     setVerificationFilter(item)
                     setCategoryFilter('All')
-                    setDateFilter("")
+                    setDateFilter('')
                     setClaims(
                       allClaims.filter(
                         claim => claim.verificationStatus === item
@@ -133,27 +133,22 @@ const ClaimsAnalysis = ({
             <label className='light-gray-text font-medium my-[1rem]'>
               Sort By
             </label>
-            <div className='flex gap-[1rem]'>
-              <input
-                type='date'
-                className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E] accent-white cursor-pointer'
-                onChange={e => {
-                  setDateFilter(e.target.value)
-                  setCategoryFilter('All')
-                  setVerificationFilter('All')
-                  setClaims(
-                    allClaims.filter(
-                      item =>
-                        new Date(item.date).toDateString() ===
-                        new Date(e.target.value).toDateString()
-                    )
+            <input
+              type='date'
+              className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E] cursor-pointer'
+              onChange={e => {
+                setDateFilter(e.target.value)
+                setCategoryFilter('All')
+                setVerificationFilter('All')
+                setClaims(
+                  allClaims.filter(
+                    item =>
+                      new Date(item.date).toDateString() ===
+                      new Date(e.target.value).toDateString()
                   )
-                }}
-              />
-              <button className='cursor-pointer bg-[#0E131E] px-[1rem] rounded-md flex flex-col items-center justify-center'>
-                <i className='fas fa-arrow-down-wide-short light-gray-text'></i>
-              </button>
-            </div>
+                )
+              }}
+            />
           </div>
         </div>
         <div className='flex items-center gap-[0.5rem] text-[#d7d7d7] mt-[2rem]'>
