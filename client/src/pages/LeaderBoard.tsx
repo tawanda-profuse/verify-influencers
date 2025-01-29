@@ -101,7 +101,7 @@ const LeaderBoard = () => {
                     allInfluencers.length
                 )}`}
               >
-                {(
+                {allInfluencers.length > 0 ? (
                   allInfluencers
                     .map(
                       (person: Influencer) =>
@@ -112,7 +112,7 @@ const LeaderBoard = () => {
                     )
                     .reduce((prev, curr) => prev + curr, 0) /
                   allInfluencers.length
-                ).toFixed(2)}
+                ).toFixed(2) : 0}
                 %
               </span>
               Average Trust Score
