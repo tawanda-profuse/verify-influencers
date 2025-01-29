@@ -72,12 +72,10 @@ const InfluencerDetails = () => {
       {isLoading && <Pending />}
       <main className='p-[4rem]'>
         <div className='flex flex-col md:flex-row gap-[2rem]'>
-          {influencer.profilePhoto && (
             <img
               className='w-[12rem] h-[12rem] mx-auto bg-[white] rounded-[50%]'
-              src={influencer.profilePhoto}
+              src={influencer.profilePhoto || "https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp"}
             />
-          )}
           <div className='flex flex-col w-full md:w-[80%]'>
             <h1 className='text-white text-3xl font-bold'>
               {influencer.name || '--'}
@@ -142,7 +140,7 @@ const InfluencerDetails = () => {
               {new Intl.NumberFormat('en-US', {
                 currency: 'USD',
                 style: 'currency'
-              }).format(influencer.yearlyRevenue)}
+              }).format(influencer.yearlyRevenue || 0)}
             </span>
             <span className='gray-text'>Estimated Earnings</span>
           </div>
