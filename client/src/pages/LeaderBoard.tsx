@@ -17,7 +17,7 @@ interface Influencer {
 const LeaderBoard = () => {
   const apiUrl: string = window.location.origin.includes('localhost')
     ? 'http://localhost:5000'
-    : ''
+    : 'https://verify-influencers-backend-six.vercel.app/'
   const [influencers, setInfluencers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 

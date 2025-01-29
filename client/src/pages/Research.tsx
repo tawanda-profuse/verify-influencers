@@ -6,7 +6,7 @@ import Pending from '../components/Pending'
 const Research = () => {
   const apiUrl = window.location.origin.includes('localhost')
     ? 'http://localhost:5000'
-    : ''
+    : 'https://verify-influencers-backend-six.vercel.app/'
   const [influencerName, setInfluencerName] = useState('')
   const [researchType, setResearchType] = useState('specific')
   const [numberOfClaims, setNumberOfClaims] = useState(50)
