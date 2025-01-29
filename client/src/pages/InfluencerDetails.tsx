@@ -31,7 +31,7 @@ const InfluencerDetails = () => {
   const { id } = useParams()
   const apiUrl: string = window.location.origin.includes('localhost')
     ? 'http://localhost:5000'
-    : 'https://verify-influencers-backend-six.vercel.app/'
+    : 'https://verify-influencers-backend-six.vercel.app'
   const [influencer, setInfluencer] = useState<Influencer>({} as Influencer)
   const [claims, setClaims] = useState<Claim[]>([])
   const [allClaims, setAllClaims] = useState<Claim[]>([])
