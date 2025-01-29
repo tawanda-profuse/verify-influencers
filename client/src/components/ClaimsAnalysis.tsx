@@ -27,6 +27,7 @@ const ClaimsAnalysis = ({
 }: ClaimsAnalysisProps) => {
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [verificationFilter, setVerificationFilter] = useState('All')
+  const [dateFilter, setDateFilter] = useState('')
 
   const formatTrustScore = (trustScore: number) => {
     if (trustScore >= 90) {
@@ -59,7 +60,8 @@ const ClaimsAnalysis = ({
             } text-white font-medium`}
             onClick={() => {
               setCategoryFilter('All')
-              setVerificationFilter("All")
+              setVerificationFilter('All')
+              setDateFilter("")
               setClaims(allClaims)
             }}
           >
@@ -73,7 +75,8 @@ const ClaimsAnalysis = ({
               } text-white`}
               onClick={() => {
                 setCategoryFilter(category)
-                setVerificationFilter("All")
+                setVerificationFilter('All')
+                setDateFilter("")
                 setClaims(
                   allClaims.filter(claim => claim.category === category)
                 )
@@ -95,7 +98,8 @@ const ClaimsAnalysis = ({
                 } text-white`}
                 onClick={() => {
                   setVerificationFilter('All')
-                  setCategoryFilter("All")
+                  setCategoryFilter('All')
+                  setDateFilter("")
                   setClaims(allClaims)
                 }}
               >
@@ -111,7 +115,8 @@ const ClaimsAnalysis = ({
                   key={index}
                   onClick={() => {
                     setVerificationFilter(item)
-                    setCategoryFilter("All")
+                    setCategoryFilter('All')
+                    setDateFilter("")
                     setClaims(
                       allClaims.filter(
                         claim => claim.verificationStatus === item
@@ -132,7 +137,18 @@ const ClaimsAnalysis = ({
               <input
                 type='date'
                 className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E] accent-white cursor-pointer'
-                placeholder='Search claims...'
+                onChange={e => {
+                  setDateFilter(e.target.value)
+                  setCategoryFilter('All')
+                  setVerificationFilter('All')
+                  setClaims(
+                    allClaims.filter(
+                      item =>
+                        new Date(item.date).toDateString() ===
+                        new Date(e.target.value).toDateString()
+                    )
+                  )
+                }}
               />
               <button className='cursor-pointer bg-[#0E131E] px-[1rem] rounded-md flex flex-col items-center justify-center'>
                 <i className='fas fa-arrow-down-wide-short light-gray-text'></i>
@@ -152,6 +168,15 @@ const ClaimsAnalysis = ({
             {verificationFilter !== 'All' && (
               <span className='opaque-green-bg text-white py-[0.2rem] px-[0.5rem] rounded-lg'>
                 {verificationFilter}
+              </span>
+            )}
+            {dateFilter && (
+              <span className='opaque-green-bg text-white py-[0.2rem] px-[0.5rem] rounded-lg'>
+                {new Date(dateFilter).toLocaleDateString('en-US', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric'
+                })}
               </span>
             )}
           </span>
