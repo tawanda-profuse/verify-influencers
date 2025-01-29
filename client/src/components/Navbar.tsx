@@ -26,7 +26,7 @@ const Navbar = () => {
         <Link to='/' className='hover:underline'>
           Monetization
         </Link>
-        <Link to='/' className='hover:underline'>
+        <Link to='/about' className='hover:underline'>
           About
         </Link>
         <Link to='/' className='hover:underline'>

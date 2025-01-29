@@ -7,6 +7,7 @@ const LeaderBoard = lazy(() => import('./pages/LeaderBoard'));
 const InfluencerDetails = lazy (() => import('./pages/InfluencerDetails'));
 import NotFound from './pages/NotFound'
 import Pending from './components/Pending'
+import About from './pages/About'
 
 function App () {
   return (
@@ -16,6 +17,7 @@ function App () {
         <Routes>
           <Route path='/' element={<Research />}></Route>
           <Route path='/leaderboard' element={<LeaderBoard />}></Route>
+          <Route path='/about' element={<About />}></Route>
           <Route path='/influencer/:id' element={<InfluencerDetails />}></Route>
           <Route path='*' element={<NotFound />}></Route>
         </Routes>
