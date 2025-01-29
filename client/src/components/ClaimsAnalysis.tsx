@@ -47,9 +47,16 @@ const ClaimsAnalysis = ({
           Categories
         </label>
         <div className='flex flex-col md:flex-row gap-[1rem]'>
-          <button className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#55b888] text-white font-medium' onClick={() => setClaims((prev) => 
-            prev.filter((claim: Claim) => categories.includes(claim.category))
-          )}>
+          <button
+            className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#55b888] text-white font-medium'
+            onClick={() =>
+              setClaims(prev =>
+                prev.filter((claim: Claim) =>
+                  categories.includes(claim.category)
+                )
+              )
+            }
+          >
             All Categories
           </button>
           {categories?.map((category, index) => (
@@ -58,7 +65,9 @@ const ClaimsAnalysis = ({
               className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#0E131E] text-white'
               onClick={() =>
                 setClaims((prev: Claim[]) =>
-                  prev.filter((claim: Claim) => claim.category === categories[index])
+                  prev.filter(
+                    (claim: Claim) => claim.category === categories[index]
+                  )
                 )
               }
             >
@@ -117,13 +126,27 @@ const ClaimsAnalysis = ({
             <div className='flex justify-between w-full'>
               <div className='flex flex-col gap-[1rem]'>
                 <div className='flex items-center gap-[1rem]'>
-                  <span className='light-green-text bg-[#3E8563] rounded-lg px-[0.5rem]'>
+                  <span
+                    className={`${
+                      claim.verificationStatus === 'Verified'
+                        ? 'bg-[#3E8563] text-white'
+                        : claim.verificationStatus === 'Questionable'
+                        ? 'bg-[orange] text-black'
+                        : 'bg-[tomato] text-white'
+                    } rounded-lg px-[0.5rem]`}
+                  >
                     {claim.verificationStatus}
                   </span>
                   <div className='flex justify-between items-center gray-text w-full'>
                     <div className='flex items-center gap-[0.5rem] gray-text'>
                       <i className='fas fa-calendar-week'></i>
-                      <span>{claim.date}</span>
+                      <span>
+                        {new Date(claim.date).toLocaleDateString('en-US', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </span>
                     </div>
                   </div>
                 </div>

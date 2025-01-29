@@ -18,6 +18,7 @@ const LeaderBoard = () => {
     : 'https://verify-influencers-backend-six.vercel.app/'
   const [influencers, setInfluencers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [sortOrder, setSortOrder] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +36,10 @@ const LeaderBoard = () => {
 
     fetchData()
   }, [apiUrl])
+
+  const sortInfluencers = (data) => {
+
+  }
 
   return (
     <>
@@ -109,9 +114,9 @@ const LeaderBoard = () => {
               Mental Health
             </button>
           </div>
-          <button className='cursor-pointer rounded-md px-[1rem] py-[0.5rem] bg-[#323c4d] text-white'>
+          <button className='cursor-pointer rounded-md px-[1rem] py-[0.5rem] bg-[#323c4d] text-white' onClick={() => setSortOrder(prev => !prev)}>
             <i className='fas fa-arrow-up-long'></i>
-            <i className='fas fa-arrow-down-long'></i> Highest First
+            <i className='fas fa-arrow-down-long'></i> {sortOrder ? "Lowest First" : "Highest First"}
           </button>
         </div>
         {influencers.length > 0 ? (
@@ -130,18 +135,21 @@ const LeaderBoard = () => {
                 <tbody className='text-white'>
                   {influencers
                     .sort(
-                      (a: Influencer, b: Influencer) =>
-                        b.followers - a.followers
+                      (a: Influencer, b: Influencer) => {
+                       if(sortOrder){
+                         return b.followers - a.followers
+                        } else {
+                         return a.followers - b.followers
+                       }
+                      }
                     )
                     .map((person: Influencer, index: number) => (
                       <tr key={index}>
                         <td className='text-center p-[0.5rem]'>{index + 1}</td>
                         <td className='text-center p-[0.5rem] flex items-center justify-center gap-[1rem]'>
                           <img
-                            className={`${
-                              !person.profilePhoto && 'bg-[grey] animate-pulse'
-                            } rounded-full w-[2rem] h-[2rem]`}
-                            src={person.profilePhoto}
+                            className={`rounded-full w-[2rem] h-[2rem]`}
+                            src={person.profilePhoto || "https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp"}
                           />{' '}
                           <Link
                             to={`/influencer/${person._id}`}
@@ -166,7 +174,7 @@ const LeaderBoard = () => {
                           {/* {person.trend} */}
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          {person.followers}
+                          {new Intl.NumberFormat('en-US').format(person.followers)}
                         </td>
                         <td className='text-center p-[0.5rem]'>
                           {person.claims.length}
