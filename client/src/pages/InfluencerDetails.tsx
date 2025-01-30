@@ -67,7 +67,7 @@ const InfluencerDetails = () => {
     } else if (trustScore <= 90 && trustScore >= 50) {
       return 'text-[orange]'
     } else if (trustScore < 50) {
-      return 'text-[red]'
+      return 'text-[tomato]'
     }
   }
 
@@ -111,30 +111,28 @@ const InfluencerDetails = () => {
                 50
                   ? 'fa-arrow-trend-up text-green-300'
                   : 'fa-arrow-trend-down text-red-400'
-              } absolute top-6 right-6 ${
-                claims?.length &&
-                formatTrustScore(
-                  claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
-                    claims.length
-                )
-              }`}
+              } absolute top-6 right-6 ${formatTrustScore(
+                claims?.length
+                  ? claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
+                      claims.length || 0
+                  : 0
+              )}`}
             ></i>
             <span className='text-white font-bold text-2xl'>Trust Score</span>
             <span
-              className={`${
-                claims?.length &&
-                formatTrustScore(
-                  claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
-                    claims.length
-                )
-              } text-3xl font-bold`}
+              className={`${formatTrustScore(
+                claims?.length > 0
+                  ? claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
+                      claims.length || 0
+                  : 0
+              )} text-3xl font-bold`}
             >
               {claims?.length
                 ? (
                     claims.reduce((prev, curr) => prev + curr.trustScore, 0) /
-                    claims.length
+                      claims.length || 0
                   ).toFixed(1) + '%'
-                : 'N/A'}
+                : 0}
             </span>
             <span className='gray-text'>Based on 127 verified claims</span>
           </div>

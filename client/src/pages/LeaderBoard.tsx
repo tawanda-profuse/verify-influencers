@@ -88,31 +88,22 @@ const LeaderBoard = () => {
             <i className='fas fa-bar-chart light-green-text text-3xl'></i>
             <div className='flex flex-col light-gray-text'>
               <span
-                className={`font-bold text-2xl ${formatTrustScore(
-                  allInfluencers
-                    .map(
-                      (person: Influencer) =>
-                        person.claims.reduce(
-                          (prev, curr) => prev + curr.trustScore,
-                          0
-                        ) / person.claims.length
-                    )
-                    .reduce((prev, curr) => prev + curr, 0) /
-                    allInfluencers.length
-                )}`}
+                className="font-bold text-2xl text-white"
               >
-                {allInfluencers.length > 0 ? (
-                  allInfluencers
-                    .map(
-                      (person: Influencer) =>
-                        person.claims.reduce(
-                          (prev, curr) => prev + curr.trustScore,
-                          0
-                        ) / person.claims.length
-                    )
-                    .reduce((prev, curr) => prev + curr, 0) /
-                  allInfluencers.length
-                ).toFixed(2) : 0}
+                {allInfluencers.length > 0
+                  ? (
+                      allInfluencers
+                        .map(
+                          (person: Influencer) =>
+                            person.claims.reduce(
+                              (prev, curr) => prev + curr.trustScore,
+                              0
+                            ) / person.claims.length || 0
+                        )
+                        .reduce((prev, curr) => prev + curr, 0) /
+                      allInfluencers.length
+                    ).toFixed(2)
+                  : 0}
                 %
               </span>
               Average Trust Score
@@ -213,7 +204,7 @@ const LeaderBoard = () => {
                           </Link>
                         </td>
                         <td className='text-center p-[0.5rem]'>
-                          {person.claims[0].category}
+                          {person?.claims[0]?.category || '--'}
                         </td>
                         <td
                           className={`text-center p-[0.5rem] ${formatTrustScore(
@@ -223,13 +214,14 @@ const LeaderBoard = () => {
                             ) / person.claims.length
                           )}`}
                         >
-                          {Math.ceil(
-                            person.claims.reduce(
-                              (prev, curr) => prev + curr.trustScore,
-                              0
-                            ) / person.claims.length
-                          )}
-                          %
+                          {person.claims.length > 0
+                            ? `${Math.ceil(
+                                person.claims.reduce(
+                                  (prev, curr) => prev + curr.trustScore,
+                                  0
+                                ) / person.claims.length
+                              )}%`
+                            : '--'}
                         </td>
                         <td className='text-center p-[0.5rem]'>
                           <i
