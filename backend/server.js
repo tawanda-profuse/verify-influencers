@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const Influencer = require("./models/influencer");
+const List = require("./models/list");
 
 const {
   cohereAIDiscover,
@@ -28,12 +29,24 @@ app.get("/", async (req, res) => {
 
 app.get("/test", async (req, res) => {
   try {
-    const influencerList = await Influencer.find().select("twitterUserName");
-
-    const allInfluencers = influencerList.map((user) =>
-      user.twitterUserName.toLowerCase()
-    );
-    console.log(allInfluencers);
+    const data = [
+      "DrJake_ND",
+      "DrDavidSamadi",
+      "DrKevinMost",
+      "DrMonaGhafoori",
+      "DrJoshUmbehr",
+      "DrMarkMilano",
+      "DrDavidJensen",
+      "DrJenGunter",
+      "DrSharmaMD",
+      "DrEricTopol",
+    ];
+    for (item of data) {
+      const list = new List({ username: item });
+      await list.save();
+    }
+    const fullList = await List.find();
+    console.log("New list: ", fullList);
     res.status(200).send({ message: "Success" });
   } catch (error) {
     res.status(500).send({ message: "Error", error });
@@ -82,7 +95,9 @@ app.post("/discover", async (req, res) => {
 
     // If the researchType === 'discover'
     if (researchType === "discover") {
-      const generatedInfluencers = await cohereGenerateInfluencers();
+      const listData = await List.find();
+      const fullList = listData.map((item) => item.username);
+      const generatedInfluencers = await cohereGenerateInfluencers(fullList);
       if (!generatedInfluencers) {
         return res
           .status(500)
@@ -95,6 +110,14 @@ app.post("/discover", async (req, res) => {
           .json({ message: "Unexpected API response format." });
       }
       console.log("Generated influencers: ", generatedInfluencers);
+      for (item of generatedInfluencers) {
+        // Avoid adding existing data
+        if (!fullList.includes(item)) {
+          const list = new List({ username: item });
+          await list.save();
+        }
+      }
+
       const twitterRateLimit = 3; // Free tier has a limit of 3 API requests every 15 minutes
       const influencer = new Influencer();
       const influencerList = await Influencer.find().select("twitterUserName");
@@ -108,7 +131,54 @@ app.post("/discover", async (req, res) => {
         if (!allInfluencers.includes(generatedInfluencers[i].toLowerCase())) {
           const user = await getUserDetails(generatedInfluencers[i]);
           let claims = [];
-          if (user?.tweets) {
+
+          // Insert the response into the database
+          if (user) {
+            console.log("Twitter user: ", user);
+            if (user?.tweets) {
+              claims = await generateClaims(
+                user?.username,
+                user?.tweets,
+                numberOfClaims,
+                verifyWithScientificJournals,
+                journals
+              );
+            }
+            influencer.name = user?.name;
+            influencer.twitterUserName = user?.username;
+            influencer.followers = user?.followers;
+            influencer.bio = user?.bio;
+            influencer.profilePhoto = user?.profilePhoto?.replace(
+              "_normal",
+              ""
+            );
+            influencer.website = user?.url;
+            influencer.claims = claims || [];
+
+            const message = statsMessage(user, claims);
+            const details = await cohereAIDiscover(message);
+            influencer.yearlyRevenue = details?.yearlyRevenue;
+            influencer.products = details?.products;
+            await influencer.save();
+            console.log("Health Influencer: ", influencer);
+          } else {
+            console.log("Twitter user not found");
+          }
+        } else {
+          console.log("User already exists in database");
+        }
+      }
+    } else {
+      // Search twitter for the input influencers name
+      const searchMessage = `What is the Twitter user name of ${influencerName}? Only return the user name in your response and do not include anything else. If you cannot find their username, return nothing.`;
+      const twitterUsernameResponse = await cohereAIDiscover(searchMessage);
+
+      if (twitterUsernameResponse) {
+        console.log("Twitter user: ", twitterUsernameResponse);
+        const user = await getUserDetails(twitterUsernameResponse);
+        let claims = [];
+        if (user) {
+          if (user.tweets) {
             claims = await generateClaims(
               user?.username,
               user?.tweets,
@@ -118,64 +188,31 @@ app.post("/discover", async (req, res) => {
             );
           }
 
-          console.log("Twitter user: ", user)
-
+          // Avoid duplicates in the database
+          const existingInfluencer = await Influencer.findOne({
+            twitterUserName: user?.username,
+          });
           // Insert the response into the database
-          influencer.name = user?.name;
-          influencer.twitterUserName = user?.username;
-          influencer.followers = user?.followers;
-          influencer.bio = user?.bio;
-          influencer.profilePhoto = user?.profile_image_url;
-          influencer.website = user?.url;
-          influencer.claims = claims || [];
+          if (!existingInfluencer) {
+            const influencer = new Influencer();
+            influencer.name = user?.name;
+            influencer.twitterUserName = user?.username;
+            influencer.followers = user?.followers;
+            influencer.profilePhoto = user?.profilePhoto?.replace(
+              "_normal",
+              ""
+            );
+            influencer.website = user?.url;
+            influencer.bio = user?.bio;
+            influencer.claims = claims || [];
 
-          const message = statsMessage(user, claims);
-          const details = await cohereAIDiscover(message);
-          influencer.yearlyRevenue = details?.yearlyRevenue;
-          influencer.products = details?.products;
-          await influencer.save();
-          console.log("Health Influencer: ", influencer);
-        }
-      }
-    } else {
-      // Search twitter for the input influencers name
-      const searchMessage = `What is the Twitter user name of ${influencerName}? Only return the user name in your response and do not include anything else. If you cannot find their username, return nothing.`;
-      const twitterUsernameResponse = await cohereAIDiscover(searchMessage);
-      if (twitterUsernameResponse) {
-        console.log("Twitter user: ", twitterUsernameResponse);
-        const user = await getUserDetails(twitterUsernameResponse);
-        let claims = [];
-        if (user.tweets) {
-          claims = await generateClaims(
-            user?.username,
-            user?.tweets,
-            numberOfClaims,
-            verifyWithScientificJournals,
-            journals
-          );
-        }
-
-        // Avoid duplicates in the database
-        const existingInfluencer = await Influencer.findOne({
-          twitterUserName: user?.username,
-        });
-        if (!existingInfluencer) {
-          // Insert the response into the database
-          const influencer = new Influencer();
-          influencer.name = user?.name;
-          influencer.twitterUserName = user?.username;
-          influencer.followers = user?.followers;
-          influencer.profilePhoto = user?.profile_image_url;
-          influencer.website = user?.url;
-          influencer.bio = user?.bio;
-          influencer.claims = claims || [];
-
-          const message = statsMessage(user, claims);
-          const details = await cohereAIDiscover(message);
-          influencer.yearlyRevenue = details?.yearlyRevenue;
-          influencer.products = details?.products;
-          await influencer.save();
-          console.log("Health Influencer: ", influencer);
+            const message = statsMessage(user, claims);
+            const details = await cohereAIDiscover(message);
+            influencer.yearlyRevenue = details?.yearlyRevenue;
+            influencer.products = details?.products;
+            await influencer.save();
+            console.log("Health Influencer: ", influencer);
+          }
         }
       } else {
         console.log("Nothing has been found for that search query"),

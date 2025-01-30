@@ -83,11 +83,21 @@ const InfluencerDetails = () => {
               'https://health-e.in/wp-content/uploads/2023/12/healthcare-concept-with-futuristic-design-graphics-medical-treatment-icons.webp'
             }
           />
-          <div className='flex flex-col w-full md:w-[80%]'>
+          <div className='flex flex-col gap-[1rem] w-full md:w-[80%]'>
             <h1 className='text-white text-3xl font-bold'>
-              {influencer.name || '--'}
+              {influencer.name || '--'}{' '}
             </h1>
-            <div className='flex flex-col md:flex-row flex-wrap gap-[1rem] my-[1rem]'>
+            {influencer.twitterUserName && (
+              <a
+                href={`https://x.com/${influencer.twitterUserName}`}
+                target='_blank'
+                className='text-white text-2xl font-bold bg-[black] py-[0.8rem] rounded-full h-[4rem] w-[4rem] text-center transition-all hover:scale-[1.1]'
+                title='Visit account on X'
+              >
+                <i className='fab fa-x-twitter'></i>
+              </a>
+            )}
+            <div className='flex flex-col md:flex-row flex-wrap gap-[1rem]'>
               {[...new Set(claims?.map(claim => claim.category))].map(
                 (category, index) => (
                   <span

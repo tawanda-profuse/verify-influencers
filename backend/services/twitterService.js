@@ -31,7 +31,7 @@ const getUserDetails = async (username) => {
     }
 
     const tweets = await twitterClient.v2.userTimeline(user.data.id, {
-      max_results: 10,
+      max_results: 50,
       'tweet.fields': 'created_at,public_metrics,text',
     });
 

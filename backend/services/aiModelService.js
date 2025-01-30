@@ -5,7 +5,7 @@ const {
   CohereError,
 } = require("cohere-ai");
 
-const cohereGenerateInfluencers = async () => {
+const cohereGenerateInfluencers = async (list) => {
   try {
     const cohere = new CohereClientV2({
       token: process.env.COHERE_API_KEY,
@@ -22,8 +22,10 @@ const cohereGenerateInfluencers = async () => {
         },
         {
           role: "user",
-          content:
-            "Generate a list of health influencers from real Twitter user accounts and return a JSON array of their Twitter user names. Just return the JSON array and nothing else in your response.",
+          content: `Generate a list of 10 health influencers from real Twitter user accounts ${
+            list &&
+            `Please ignore the following users and exclude them from your list: users ${list}`
+          }. Return a JSON array of their Twitter user names. Just return the JSON array and nothing else in your response. Ensure that all the values within the JSON array are strings.`,
         },
       ],
     });
@@ -38,7 +40,6 @@ const cohereGenerateInfluencers = async () => {
       return JSON.parse(responseText); // Ensure it's valid JSON
     } catch (parseError) {
       console.error("Invalid JSON response from Cohere: ", responseText);
-      return null; // Handle invalid JSON gracefully
     }
   } catch (error) {
     if (error instanceof CohereTimeoutError) {
@@ -79,7 +80,7 @@ const cohereAIDiscover = async (message) => {
       throw new Error("Invalid response structure from Cohere API");
     }
 
-    return responseText
+    return responseText;
   } catch (error) {
     if (error instanceof CohereTimeoutError) {
       console.log("Request timed out", error);
