@@ -110,7 +110,7 @@ const LeaderBoard = () => {
             </div>
           </div>
         </div>
-        <div className='w-full flex flex-col md:flex-row items-center justify-between gap-[1rem]'>
+        {!isLoading && <div className='w-full flex flex-col md:flex-row items-center justify-between gap-[1rem]'>
           <div className='flex w-full md:max-w-3/4 gap-[1rem] flex-wrap'>
             <button
               className={`cursor-pointer px-[1rem] py-[0.1rem] bg-[#323c4d] text-white rounded-3xl ${
@@ -162,7 +162,7 @@ const LeaderBoard = () => {
             ></i>{' '}
             {sortOrder ? 'Lowest First' : 'Highest First'}
           </button>
-        </div>
+        </div>}
         {influencers.length > 0 ? (
           <div className='overflow-x-auto my-[2rem]'>
             <div className='border-1 border-[#aaa] rounded-lg'>

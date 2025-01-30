@@ -362,7 +362,7 @@ const Research = () => {
             </label>
             <textarea
               className='w-full px-[1rem] py-[0.5rem] placeholder-[#d7d7d7] light-gray-text border border-[#d7d7d7] rounded-md outline-none mb-[0.5rem] bg-[#0E131E]'
-              placeholder='Add any specific instructions of focus areas...'
+              placeholder='Add any specific instructions or focus areas...'
               onChange={e => setNotes(e.target.value)}
             />
             <button
