@@ -53,7 +53,7 @@ const LeaderBoard = () => {
   return (
     <>
       {isLoading && <Pending />}
-      <main className='p-[4rem]'>
+      <main className='p-[1rem] md:p-[4rem]'>
         <h1 className='text-white text-3xl font-bold'>
           Influencer Trust Leaderboard
         </h1>

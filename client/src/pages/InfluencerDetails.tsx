@@ -74,7 +74,7 @@ const InfluencerDetails = () => {
   return (
     <>
       {isLoading && <Pending />}
-      <main className='p-[4rem]'>
+      <main className='p-[1rem] md:p-[4rem]'>
         <div className='flex flex-col md:flex-row gap-[2rem]'>
           <img
             className='w-[12rem] h-[12rem] mx-auto bg-[white] rounded-[50%]'
@@ -92,7 +92,7 @@ const InfluencerDetails = () => {
                 (category, index) => (
                   <span
                     key={index}
-                    className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#323c4d] text-white'
+                    className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#323c4d] text-white text-center'
                   >
                     {category}
                   </span>

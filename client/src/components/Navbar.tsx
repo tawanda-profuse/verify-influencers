@@ -44,7 +44,7 @@ const Navbar = () => {
         className='block md:hidden cursor-pointer'
         onClick={() => setMenuState(prev => !prev)}
       >
-        <i className='fas fa-bars text-[#3E8563] text-3xl'></i>
+        <i className={`fas ${menuState ? "fa-times" : "fa-bars"} text-[#3E8563] text-3xl`}></i>
       </button>
     </div>
   )

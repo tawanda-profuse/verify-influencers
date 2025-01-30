@@ -101,8 +101,8 @@ const Research = () => {
           </div>
         </>
       )}
-      <main className='p-[4rem]'>
-        <div className='flex gap-[1rem] items-center mb-[2rem]'>
+      <main className='p-[1rem] md:p-[4rem]'>
+        <div className='flex flex-wrap flex-col md:flex-row gap-[1rem] items-start md:items-center mb-[2rem]'>
           <Link to='/leaderboard' className='dark-green-text font-medium'>
             <i className='fas fa-arrow-left'></i> Back to Dashboard
           </Link>
