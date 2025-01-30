@@ -25,4 +25,10 @@
     .opaque-green-bg{
         @apply bg-[#17282B];
     }
+    .gradient-text{
+        background: linear-gradient(to right, #74d3a5, rgb(5, 181, 181));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 }

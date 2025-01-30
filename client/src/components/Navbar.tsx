@@ -6,7 +6,7 @@ const Navbar = () => {
 
   return (
     <div className='flex justify-between md:justify-around bg-[#0E131E] py-[0.5rem] px-[1rem] md:px-0 flex-wrap border-b-1 border-b-[#A2A4A8]'>
-      <Link to="/" className='flex items-center gap-[0.5rem] text-[#3E8563] text-2xl font-bold textShadow'>
+      <Link to="/" className='flex items-center gap-[0.5rem] gradient-text text-2xl font-bold textShadow'>
         <i className='fas fa-shield'></i>
         VerifyInfluencers
       </Link>
