@@ -166,7 +166,7 @@ const LeaderBoard = () => {
         {influencers.length > 0 ? (
           <div className='overflow-x-auto my-[2rem]'>
             <div className='border-1 border-[#aaa] rounded-lg'>
-              <table className='bg-[#19212E] w-full rounded-lg'>
+              <table className='bg-[#19212E] w-screen md:w-full rounded-lg'>
                 <thead className='gray-text border-b'>
                   <th className='p-[0.5rem]'>RANK</th>
                   <th className='p-[0.5rem]'>INFLUENCER</th>
@@ -188,7 +188,7 @@ const LeaderBoard = () => {
                     .map((person: Influencer, index: number) => (
                       <tr key={index}>
                         <td className='text-center p-[0.5rem]'>{index + 1}</td>
-                        <td className='text-center p-[0.5rem] flex items-center justify-center gap-[1rem]'>
+                        <td className='text-center p-[0.5rem] flex flex-col md:flex-row items-center justify-start gap-[1rem]'>
                           <img
                             className={`rounded-full w-[2rem] h-[2rem]`}
                             src={
