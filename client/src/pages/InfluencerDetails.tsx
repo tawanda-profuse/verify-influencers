@@ -21,7 +21,6 @@ type Claim = {
   verificationStatus: string
   date: string
   category: string
-  source: string
   aiAnalysis: string
   trustScore: number
   researchLink: string
@@ -109,7 +108,10 @@ const InfluencerDetails = () => {
                 )
               )}
             </div>
-            <p className='gray-text w-[70%]'>{influencer.bio || '--'}</p>
+            <p className='gray-text w-[70%]'>
+              {isLoading && 'Loading...'}
+              {!isLoading && <>{influencer.bio || '--'}</>}
+            </p>
           </div>
         </div>
         <div className='grid grid-cols-1 md:grid-cols-4 my-[2rem] w-full gap-[1rem]'>
@@ -205,6 +207,7 @@ const InfluencerDetails = () => {
             allClaims={allClaims}
             setClaims={setClaims}
             categories={[...new Set(categories)]}
+            username={influencer.twitterUserName}
           />
         )}
         {activeTab === 'Recommended Products' && (

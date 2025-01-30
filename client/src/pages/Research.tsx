@@ -36,12 +36,12 @@ const Research = () => {
         verifyWithScientificJournals,
         notes
       })
-      navigate('/leaderboard')
     } catch (error) {
       console.error('Error: ', error)
       alert('Error while generating research')
     } finally {
       setIsPending(false)
+      navigate('/leaderboard')
     }
   }
 

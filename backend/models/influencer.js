@@ -15,7 +15,6 @@ const influencerSchema = new mongoose.Schema({
       verificationStatus: String,
       date: Date,
       category: String,
-      source: String,
       aiAnalysis: String,
       trustScore: Number,
       researchLink: String,
