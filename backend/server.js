@@ -57,8 +57,8 @@ app.post("/discover", async (req, res) => {
     } = req.body;
 
     const statsMessage = (user, claims) => {
-      return `Analyze this Twitter user's posts or any other information available online and provide the following information: products ${
-        revenueAnalysis && "and yearly revenue"
+      return `Analyze this Twitter user's posts or any other information available online and provide the following information: products${
+        revenueAnalysis && " and yearly revenue"
       }.
       
       ### Twitter User: ${user?.username} ###
@@ -69,13 +69,13 @@ app.post("/discover", async (req, res) => {
       Please return your data in JSON format. Do not include any other letters or characters except what I have requested. Only generate a maximum of ${products} products. Ensure that your output is in the following format with these exact property names:
   
       {
-        "yearlyRevenue": 0,
-        "products": []
+        "yearlyRevenue": 50000,
+        "products": ["Product 1", "Product 2", "Product 3"]
       }
   
       If you cannot find the information, return 0 for yearlyRevenue and an empty array for products.
   
-      - Products refers to any products that the influencer sells or promotes.
+      - Products refers to any products that the health influencer sells or promotes. Return this as an array of strings e.g. ["Product 1", "Product 2", "Product 3"]
       - Yearly revenue refers to the estimated yearly revenue of the influencer. If you cannot find the information, return 0.
       `;
     };

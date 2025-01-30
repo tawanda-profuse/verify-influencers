@@ -23,7 +23,7 @@ const cohereGenerateInfluencers = async () => {
         {
           role: "user",
           content:
-            "Generate a list of 10 health influencers from real Twitter user accounts and return a JSON array of their Twitter user names. Just return the JSON array and nothing else in your response.",
+            "Generate a list of health influencers from real Twitter user accounts and return a JSON array of their Twitter user names. Just return the JSON array and nothing else in your response.",
         },
       ],
     });

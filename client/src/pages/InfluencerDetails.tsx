@@ -80,7 +80,7 @@ const InfluencerDetails = () => {
             className='w-[12rem] h-[12rem] mx-auto bg-[white] rounded-[50%]'
             src={
               influencer.profilePhoto ||
-              'https://www.mindinventory.com/blog/wp-content/uploads/2023/10/ai-in-healthcare-industry.webp'
+              'https://health-e.in/wp-content/uploads/2023/12/healthcare-concept-with-futuristic-design-graphics-medical-treatment-icons.webp'
             }
           />
           <div className='flex flex-col w-full md:w-[80%]'>
