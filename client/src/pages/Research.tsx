@@ -103,7 +103,7 @@ const Research = () => {
       )}
       <main className='p-[1rem] md:p-[4rem]'>
         <div className='flex flex-wrap flex-col md:flex-row gap-[1rem] items-start md:items-center mb-[2rem]'>
-          <Link to='/leaderboard' className='dark-green-text font-medium'>
+          <Link to='/leaderboard' className='dark-green-text font-medium hover:underline'>
             <i className='fas fa-arrow-left'></i> Back to Dashboard
           </Link>
           <h1 className='text-white text-3xl font-bold'>Research Tasks</h1>

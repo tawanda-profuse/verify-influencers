@@ -20,22 +20,22 @@ const Navbar = () => {
         <Link to='/leaderboard' className='hover:underline'>
           Leaderboard
         </Link>
-        <Link to='/' className='hover:underline'>
+        <Link to='/products' className='hover:underline'>
           Products
         </Link>
-        <Link to='/' className='hover:underline'>
+        <Link to='/monetization' className='hover:underline'>
           Monetization
         </Link>
         <Link to='/about' className='hover:underline'>
           About
         </Link>
-        <Link to='/' className='hover:underline'>
+        <Link to='/contact' className='hover:underline'>
           Contact
         </Link>
-        <Link to='/' className='hover:underline'>
+        <Link to='/admin' className='hover:underline'>
           Admin
         </Link>
-        <Link to='/' className='hover:underline'>
+        <Link to='/sign-out' className='hover:underline'>
           <img />
           <i className='fas fa-arrow-right-from-bracket'></i> Sign Out
         </Link>

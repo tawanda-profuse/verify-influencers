@@ -1,8 +1,13 @@
+import { Link } from 'react-router-dom'
+
 const About = () => {
   return (
-    <main>
-      <div className='my-[2rem] p-[4rem] mx-auto w-full md:w-3/4'>
-        <h1 className='text-white text-3xl font-bold text-center'>
+    <>
+      <main className='my-[2rem] p-[1rem] md:p-[4rem] mx-auto w-full md:w-3/4'>
+        <Link to='/' className='dark-green-text font-medium hover:underline'>
+          <i className='fas fa-arrow-left'></i> Go to Research
+        </Link>
+        <h1 className='text-white text-3xl font-bold text-center mt-[1rem]'>
           About Verify Influencers
         </h1>
         <p className='light-gray-text mx-auto text-justify my-[2rem]'>
@@ -28,8 +33,8 @@ const About = () => {
           perferendis aspernatur, maxime cumque expedita, veritatis iure commodi
           earum?
         </p>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }
 
