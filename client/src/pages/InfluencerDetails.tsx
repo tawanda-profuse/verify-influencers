@@ -92,7 +92,7 @@ const InfluencerDetails = () => {
                 (category, index) => (
                   <span
                     key={index}
-                    className='text-sm cursor-pointer py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#323c4d] text-white text-center'
+                    className='text-sm py-[0.5rem] px-[0.5rem] rounded-3xl bg-[#323c4d] text-white text-center'
                   >
                     {category}
                   </span>

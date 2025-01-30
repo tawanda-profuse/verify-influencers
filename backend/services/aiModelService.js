@@ -141,14 +141,14 @@ const generateClaims = async (user, tweets, total, verify, journals) => {
           - verificationStatus: The verification status of the claim. Use your discretion to determine a verification status. Choose between "Verified", "Questionable", or "Debunked".
           - date: The date the Tweet was created.
           - category: The category of the claim. Generate a suitable category based on the text of the Tweet.
-          - source: The URL of the Tweet.
+          - source: The URL of the Tweet or any supporting link found within the Tweet. If you cannot find the correct URL of the Tweet, use the URL of the Twitter user.
           - aiAnalysis: Provide a short analysis of the claim using a maximum of 80 words.
           - trustScore: Based on your analysis, generate a trust score as a percentage. Assign a value between 0 and 100 based on your analysis. ${
             verify
               ? `Verify the claim using the following scientific journals: ${journals}`
               : "Use your discretion to determine the trust score."
           }
-          - researchLink: Provide a URL to the research that supports the claim. If the claim is debunked, provide a URL to the debunking research.
+          - researchLink: Provide a URL to the research that supports the claim or provide a URL to the debunking research if the claim is debunked. If you cannot find this URL, just provide the link to the users Twitter account.
     `,
         },
       ],
