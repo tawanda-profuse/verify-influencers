@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const Influencer = require("./models/influencer");
 const List = require("./models/list");
-
 const {
   cohereAIDiscover,
   cohereGenerateInfluencers,
@@ -12,16 +11,15 @@ const {
 } = require("./services/aiModelService");
 const { getUserDetails } = require("./services/twitterService");
 const mongoose = require("mongoose");
-
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
 
 mongoose
   .connect(process.env.MONGODB_URL)
   .then(() => console.log("MongoDB Connected"))
   .catch((error) => console.error("Mongoose Error", error));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
+app.use(cors());
 
 app.get("/", async (req, res) => {
   res.status(200).send({ message: "Successful response" });
@@ -30,7 +28,7 @@ app.get("/", async (req, res) => {
 app.get("/test", async (req, res) => {
   try {
     // const user = await getUserDetails("sarahkliff")
-    const user = await getUserDetails("drdavidsamadi")
+    const user = await getUserDetails("drdavidsamadi");
     // const user = await getUserDetails("drmarkhyman")
     console.log(user);
     res.status(200).send({ message: "Success" });
@@ -205,10 +203,10 @@ app.post("/discover", async (req, res) => {
           }
         }
       } else {
-        console.log("Nothing has been found for that search query"),
-          res.status(404).send({
-            message: "Nothing has been found for that search query",
-          });
+        console.log("Nothing has been found for that search query");
+        return res.status(404).send({
+          message: "Nothing has been found for that search query",
+        });
       }
     }
 
