@@ -36,10 +36,20 @@ const cohereGenerateInfluencers = async (list) => {
       throw new Error("Invalid response structure from Cohere API");
     }
 
+    // Add  normalization:
+    const normalizedText = responseText
+      .replace(/```json\s*([\s\S]*?)```/i, "$1") // If fenced with ```json ... ```
+      .replace(/```([\s\S]*?)```/g, "$1")        // If fenced with ``` ... ```
+      .trim();
+    
+    if (!normalizedText) {
+      throw new Error("Invalid response structure from Cohere API");
+    }
+    
     try {
-      return JSON.parse(responseText); // Ensure it's valid JSON
+      return JSON.parse(normalizedText); // Ensure it's valid JSON
     } catch (parseError) {
-      console.error("Invalid JSON response from Cohere: ", responseText);
+      console.error("Invalid JSON response from Cohere: ", normalizedText);
     }
   } catch (error) {
     if (error instanceof CohereTimeoutError) {
