@@ -12,7 +12,7 @@ const cohereGenerateInfluencers = async (list) => {
     });
 
     const response = await cohere.chat({
-      model: "command-r-plus",
+      model: "command-a-03-2025",
       temperature: 0.3,
       messages: [
         {
