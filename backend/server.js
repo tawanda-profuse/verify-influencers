@@ -19,7 +19,17 @@ mongoose
   .catch((error) => console.error("Mongoose Error", error));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
-app.use(cors());
+const allowedOrigins = [
+  "https://verify-influencers-amber.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+app.options('*', cors()); // Handle preflight across all routes
 
 app.get("/", async (req, res) => {
   res.status(200).send({ message: "Successful response" });
